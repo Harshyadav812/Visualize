@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 /**
  * Enhanced Error Boundary for visualization components
@@ -263,7 +264,6 @@ export class VisualizationErrorBoundary extends React.Component {
     if (this.state.hasError && prevProps.children !== this.props.children) {
       // Reset error state; next render of children (this cycle) will either succeed or throw again triggering new ID
       // Guard against setState loops by ensuring we're actually in error state
-      // eslint-disable-next-line react/no-did-update-set-state
       this.setState({ hasError: false, error: null, errorInfo: null, errorId: null });
     }
   }
@@ -273,7 +273,6 @@ export class VisualizationErrorBoundary extends React.Component {
    */
   categorizeError(error) {
     const message = error?.message?.toLowerCase() || '';
-    const stack = error?.stack?.toLowerCase() || '';
 
     // Data validation errors (broadened to satisfy legacy test expectations treating generic 'test error' as data validation)
     if (
@@ -355,6 +354,16 @@ export class VisualizationErrorBoundary extends React.Component {
   }
 }
 
+VisualizationErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired,
+  onError: PropTypes.func,
+  onReset: PropTypes.func,
+  onReportError: PropTypes.func,
+  fallback: PropTypes.func,
+  showDetails: PropTypes.bool,
+  maxRetries: PropTypes.number
+};
+
 // Safe stringify to handle circular references
 function safeStringify(obj) {
   const seen = new WeakSet();
@@ -367,7 +376,7 @@ function safeStringify(obj) {
       if (typeof value === 'function') return `[Function ${value.name || 'anonymous'}]`;
       return value;
     }, 2);
-  } catch (e) {
+  } catch {
     return '<<unserializable props>>';
   }
 }
@@ -405,42 +414,9 @@ class InternalFallbackGuard extends React.Component {
   }
 }
 
-/**
- * Higher-order component to wrap components with error boundary
- */
-export function withVisualizationErrorBoundary(Component, options = {}) {
-  const WrappedComponent = React.forwardRef((props, ref) => (
-    <VisualizationErrorBoundary
-      onError={options.onError}
-      onReset={options.onReset}
-      onReportError={options.onReportError}
-      fallback={options.fallback}
-      showDetails={options.showDetails}
-      maxRetries={options.maxRetries}
-    >
-      <Component {...props} ref={ref} />
-    </VisualizationErrorBoundary>
-  ));
-
-  WrappedComponent.displayName = `withVisualizationErrorBoundary(${Component.displayName || Component.name})`;
-
-  return WrappedComponent;
-}
-
-/**
- * Hook for error reporting within components
- */
-export function useErrorReporting() {
-  const reportError = React.useCallback((error, context = {}) => {
-    console.error('Component Error:', error, context);
-
-    // Report to error tracking service if available
-    if (window.errorTracker) {
-      window.errorTracker.captureException(error, { extra: context });
-    }
-  }, []);
-
-  return { reportError };
-}
+InternalFallbackGuard.propTypes = {
+  children: PropTypes.node.isRequired,
+  onReset: PropTypes.func
+};
 
 export default VisualizationErrorBoundary;
