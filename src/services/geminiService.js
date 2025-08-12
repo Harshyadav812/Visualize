@@ -1,5 +1,5 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { translateToPython, quickDetectLanguage, needsAITranslation } from './astTranslationService.js';
+import { translateToPython, quickDetectLanguage } from './astTranslationService.js';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
@@ -505,6 +505,25 @@ ${translationNote}
 **Primary Data Structure:** ${primaryDataStructure}
 **All Data Structures Used:** ${JSON.stringify(dataStructures)}
 
+## CRITICAL REQUIREMENT: TEST CASE EXTRACTION
+**IMPORTANT**: You MUST extract and use the actual test case data from the problem statement for visualization.
+
+**Test Case Extraction Guidelines:**
+- Look for patterns like "Input: s = "value"", "Input: nums = [1,2,3]", "Example: s = "abc""
+- Extract the ACTUAL values provided in the problem statement
+- For string problems, use the exact string provided (e.g., if problem says 'Input: s = "abcabcbb"', use "abcabcbb")
+- For array problems, use the exact array provided (e.g., if problem says 'Input: nums = [1,2,3]', use [1,2,3])
+- If multiple test cases are provided, use the first one for step-by-step visualization
+- NEVER use placeholder data like "string" or "array" - always use the actual test case values
+
+**String Problem Example:**
+If problem states: 'Input: s = "abcabcbb"'
+Then ALL string visualizations MUST use: "abcabcbb"
+
+**Array Problem Example:**  
+If problem states: 'Input: nums = [2,7,11,15], target = 9'
+Then ALL array visualizations MUST use: [2,7,11,15] and target = 9
+
 ## ANALYSIS REQUIREMENTS
 
 ### 1. COMPREHENSIVE STEP BREAKDOWN
@@ -562,11 +581,11 @@ Step 3: "visualization": { "type": "array", "data": { "arrays": [...], ... } }
 
 **CRITICAL DATA STRUCTURE REQUIREMENTS:**
 
-When using "type": "string", MUST include actual string content:
+When using "type": "string", MUST include actual string content from the test case:
 "visualization": {
   "type": "string",
   "data": {
-    "string": "actual string content here",
+    "string": "ACTUAL_TEST_CASE_STRING_HERE", // e.g., "abcabcbb" if that's in the problem
     "pointers": [{"name": "i", "position": 0}],
     "hashMap": {"key": "value"},
     "calculations": [{"expression": "i + 1", "result": 1}]
@@ -742,10 +761,9 @@ Generate the comprehensive JSON analysis now:`}
  * Generates thorough step-by-step breakdowns optimized for learning
  * @param {string} problemStatement - The problem description
  * @param {string} solutionCode - The user's solution code
- * @param {string} inputData - Optional input data for testing
  * @returns {Promise<Object>} - Comprehensive educational analysis with detailed steps
  */
-export async function analyzeAlgorithm(problemStatement, solutionCode, inputData = '') {
+export async function analyzeAlgorithm(problemStatement, solutionCode) {
   const startTime = Date.now();
 
   // Check cache first
@@ -940,7 +958,7 @@ function parseAIResponse(text) {
       const parsedData = JSON.parse(jsonStr);
       console.log('Direct JSON parsing successful:', parsedData);
       return parsedData;
-    } catch (directParseError) {
+    } catch {
       console.log('Direct parsing failed, attempting cleanup...');
 
       // Clean up common JSON issues only if direct parsing fails
@@ -971,7 +989,7 @@ function parseAIResponse(text) {
  * @param {string} jsonStr - JSON string to fix
  * @returns {string} - Fixed JSON string
  */
-function fixCommonJSONIssues(jsonStr) {
+function _fixCommonJSONIssues(jsonStr) {
   // Fix unescaped quotes in strings
   jsonStr = jsonStr.replace(/"([^"]*)"([^"]*)"([^"]*)":/g, '"$1\\"$2\\"$3":');
 
@@ -1008,7 +1026,7 @@ function attemptAlternativeParsing(text) {
     if (keyVariablesMatch) {
       try {
         keyVariables = JSON.parse(`[${keyVariablesMatch[1]}]`);
-      } catch (e) {
+      } catch {
         // Fallback for key variables
         keyVariables = [
           { name: 'maxLen', type: 'number', description: 'Maximum length found' },
@@ -1176,7 +1194,7 @@ function createReasonableSteps(text) {
  * @param {string} key - Key to find
  * @returns {string|null} - Extracted value
  */
-function extractValue(text, key) {
+function _extractValue(text, key) {
   const regex = new RegExp(`"${key}"\\s*:\\s*"([^"]*)"`, 'i');
   const match = text.match(regex);
   return match ? match[1] : null;
@@ -1188,7 +1206,7 @@ function extractValue(text, key) {
  * @param {string} key - Key to find
  * @returns {Array} - Extracted array or empty array
  */
-function extractArray(text, key) {
+function _extractArray(text, key) {
   try {
     const regex = new RegExp(`"${key}"\\s*:\\s*\\[([^\\]]+)\\]`, 'i');
     const match = text.match(regex);
@@ -1208,7 +1226,7 @@ function extractArray(text, key) {
  * @param {string} key - Key to find
  * @returns {Object} - Extracted object or empty object
  */
-function extractObject(text, key) {
+function _extractObject(text, key) {
   try {
     const regex = new RegExp(`"${key}"\\s*:\\s*\\{([^}]+)\\}`, 'i');
     const match = text.match(regex);
