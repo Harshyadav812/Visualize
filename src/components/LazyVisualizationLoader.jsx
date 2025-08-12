@@ -1,4 +1,5 @@
 import React, { memo } from 'react';
+import PropTypes from 'prop-types';
 
 // Maximum number of retry attempts for failed lazy loads
 const MAX_LAZY_LOAD_RETRIES = 3;
@@ -190,6 +191,10 @@ const VisualizationSkeleton = memo(function VisualizationSkeleton({ type = 'defa
   );
 });
 
+VisualizationSkeleton.propTypes = {
+  type: PropTypes.string
+};
+
 /**
  * Error fallback for lazy loading failures
  */
@@ -232,6 +237,15 @@ const LazyLoadError = memo(function LazyLoadError({ error, retry, type, canRetry
   );
 });
 
+LazyLoadError.propTypes = {
+  error: PropTypes.object,
+  retry: PropTypes.func,
+  type: PropTypes.string,
+  canRetry: PropTypes.bool,
+  retryScheduled: PropTypes.bool,
+  nextDelayMs: PropTypes.number
+};
+
 /**
  * Lazy visualization loader with error boundary and retry logic
  */
@@ -242,6 +256,10 @@ class LazyVisualizationLoader extends React.Component {
     return <LazyVisualizerRenderer type={type} {...visualizerProps} />;
   }
 }
+
+LazyVisualizationLoader.propTypes = {
+  type: PropTypes.string.isRequired
+};
 
 /**
  * Renderer component that selects the appropriate lazy-loaded visualizer
@@ -270,74 +288,8 @@ function LazyVisualizerRenderer({ type, ...props }) {
   );
 }
 
+LazyVisualizerRenderer.propTypes = {
+  type: PropTypes.string.isRequired
+};
+
 export default LazyVisualizationLoader;
-
-/**
- * Hook for preloading visualization components
- * Can be used to preload likely-to-be-used visualizers
- */
-export function usePreloadVisualizers(types = []) {
-  // Ref holds the canonical types that have already been preloaded to avoid duplicate work
-  const preloadedRef = React.useRef(new Set());
-
-  // Normalize, deduplicate, and sort incoming types so dependency is stable regardless of order
-  const normalizedTypes = React.useMemo(() => {
-    const set = new Set();
-    types.forEach(t => {
-      const c = canonicalizeType(t);
-      if (c) set.add(c);
-    });
-    return Array.from(set).sort();
-  }, [types]);
-
-  // Stable string key so effect only runs when the actual canonical membership changes
-  const normalizedKey = React.useMemo(() => normalizedTypes.join(','), [normalizedTypes]);
-
-  React.useEffect(() => {
-    if (!normalizedTypes.length) return;
-
-    // Determine which types still need preloading
-    const toPreload = normalizedTypes.filter(t => !preloadedRef.current.has(t));
-    if (!toPreload.length) return; // All already preloaded
-
-    const preloadPromises = toPreload.map(t => VISUALIZER_DEFS[t]?.preload?.() || Promise.resolve());
-
-    Promise.allSettled(preloadPromises).then(results => {
-      // Mark all attempted types as preloaded (even failures to avoid tight retry loops); could refine per status
-      toPreload.forEach(t => preloadedRef.current.add(t));
-      const successful = results.filter(r => r.status === 'fulfilled').length;
-      const failed = results.filter(r => r.status === 'rejected').length;
-      if (successful > 0) {
-        console.log(`Preloaded ${successful} visualization component${successful > 1 ? 's' : ''}`);
-      }
-      if (failed > 0) {
-        console.warn(`Failed to preload ${failed} visualization component${failed > 1 ? 's' : ''}`);
-      }
-    });
-  }, [normalizedKey, normalizedTypes]);
-}
-
-/**
- * Utility to get visualization type from analysis data
- */
-export function getVisualizationTypes(analysis) {
-  if (!analysis) return [];
-
-  const types = new Set();
-
-  // Add types from data structures
-  if (analysis.dataStructures) {
-    analysis.dataStructures.forEach(ds => types.add(ds.toLowerCase()));
-  }
-
-  // Add types from steps
-  if (analysis.steps) {
-    analysis.steps.forEach(step => {
-      if (step.visualization?.type) {
-        types.add(step.visualization.type.toLowerCase());
-      }
-    });
-  }
-
-  return Array.from(types);
-}
