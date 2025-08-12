@@ -88,7 +88,75 @@
 .header-content {
   max-width: var(--container-max-width);
   margin: 0 auto;
-  text-align: center;
+  width: 100%;
+}
+
+.header-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-text {
+  text-align: left;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.help-button {
+  background-color: var(--color-surface-secondary);
+  border-color: var(--color-border-subtle);
+  color: var(--color-text-secondary);
+  transition: all 0.2s ease;
+}
+
+.help-button:hover {
+  background-color: var(--color-surface-tertiary);
+  border-color: var(--color-border-primary);
+  color: var(--color-text-primary);
+}
+
+.educational-panel {
+  margin-top: var(--spacing-md);
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.educational-section h3 {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* Responsive header adjustments */
+@media (max-width: 768px) {
+  .header-main {
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    text-align: center;
+  }
+
+  .header-text {
+    text-align: center;
+  }
+
+  .educational-panel .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .app-title {

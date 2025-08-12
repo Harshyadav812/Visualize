@@ -6,6 +6,24 @@ import AlgorithmVisualizer from './components/AlgorithmVisualizer'
 import { usePreloadVisualizers, getVisualizationTypes } from './components/LazyVisualizationLoader'
 import Header from './components/Header'
 import { ButtonSpinner, InlineLoader } from './components/LoadingIndicators'
+import { Button } from './components/ui/button'
+import { Textarea } from './components/ui/textarea'
+import { Alert, AlertDescription } from './components/ui/alert'
+import { Badge } from './components/ui/badge'
+import {
+  ComplexityTooltip,
+  PatternTooltip,
+  DataStructureTooltip,
+  ComplexityComparisonTooltip
+} from './components/EducationalTooltip'
+import { COMPLEXITY_TYPES } from './constants/ui'
+import {
+  getAlgorithmExplanation,
+  getAlgorithmExamples,
+  getComplexityDescription,
+  getDataStructureProperties,
+  getDataStructureUseCases
+} from './utils/educationalContent'
 
 export default function App() {
   const [problem, setProblem] = useState('')
@@ -101,7 +119,7 @@ export default function App() {
             <div className="input-grid">
               <div className="input-card">
                 <h2 className="input-title">Problem Statement</h2>
-                <textarea
+                <Textarea
                   value={problem}
                   onChange={(e) => setProblem(e.target.value)}
                   className="input-textarea"
@@ -111,7 +129,7 @@ export default function App() {
 
               <div className="input-card">
                 <h2 className="input-title">Solution Code</h2>
-                <textarea
+                <Textarea
                   value={code}
                   onChange={(e) => setCode(e.target.value)}
                   className="input-textarea code-input"
@@ -121,10 +139,11 @@ export default function App() {
             </div>
 
             <div className="analyze-section">
-              <button
+              <Button
                 onClick={handleAnalyze}
                 disabled={!problem || !code || isAnalyzing}
                 className="analyze-button"
+                size="lg"
               >
                 {isAnalyzing ? (
                   <>
@@ -134,7 +153,7 @@ export default function App() {
                 ) : (
                   'Analyze Algorithm'
                 )}
-              </button>
+              </Button>
 
               {isAnalyzing && (
                 <InlineLoader
@@ -146,15 +165,15 @@ export default function App() {
             </div>
 
             {error && (
-              <div className="error-message">
-                <p>{error}</p>
-              </div>
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
             )}
 
             {cacheStatus && (
-              <div className={`status-message status-${cacheStatus.type}`}>
-                <p>{cacheStatus.message}</p>
-              </div>
+              <Alert variant={cacheStatus.type === 'error' ? 'destructive' : 'default'}>
+                <AlertDescription>{cacheStatus.message}</AlertDescription>
+              </Alert>
             )}
           </div>
         ) : (
@@ -164,42 +183,74 @@ export default function App() {
                 <h2 className="summary-title">Algorithm Analysis</h2>
                 <div className="summary-actions">
                   {cacheStatus && (
-                    <span className={`cache-indicator cache-${cacheStatus.type}`}>
+                    <Badge variant={cacheStatus.type === 'hit' ? 'default' : 'secondary'}>
                       {cacheStatus.type === 'hit' ? 'Cached' :
                         cacheStatus.type === 'stored' ? 'Cached' :
                           cacheStatus.type === 'fallback' ? 'Fallback' :
                             'Fresh'}
-                    </span>
+                    </Badge>
                   )}
-                  <button
+                  <Button
                     onClick={handleNewAnalysis}
                     className="new-analysis-button"
+                    variant="outline"
                   >
                     New Analysis
-                  </button>
+                  </Button>
                 </div>
               </div>
 
               <div className="summary-grid">
                 <div className="summary-item">
                   <span className="summary-label">Algorithm Type</span>
-                  <span className="summary-value">{analysis.algorithmType}</span>
+                  <PatternTooltip
+                    pattern={analysis.algorithmType}
+                    explanation={getAlgorithmExplanation(analysis.algorithmType)}
+                    examples={getAlgorithmExamples(analysis.algorithmType)}
+                  >
+                    <span className="summary-value cursor-help hover:text-green-400 transition-colors">
+                      {analysis.algorithmType}
+                    </span>
+                  </PatternTooltip>
                 </div>
                 <div className="summary-item">
                   <span className="summary-label">Time Complexity</span>
-                  <span className="summary-value complexity">{analysis.complexity?.time}</span>
+                  <ComplexityTooltip
+                    complexity={analysis.complexity?.time}
+                    description={getComplexityDescription(analysis.complexity?.time)}
+                    type={COMPLEXITY_TYPES.TIME}
+                  >
+                    <span className="summary-value complexity cursor-help hover:text-blue-400 transition-colors">
+                      {analysis.complexity?.time}
+                    </span>
+                  </ComplexityTooltip>
                 </div>
                 <div className="summary-item">
                   <span className="summary-label">Space Complexity</span>
-                  <span className="summary-value complexity">{analysis.complexity?.space}</span>
+                  <ComplexityTooltip
+                    complexity={analysis.complexity?.space}
+                    description={getComplexityDescription(analysis.complexity?.space)}
+                    type={COMPLEXITY_TYPES.SPACE}
+                  >
+                    <span className="summary-value complexity cursor-help hover:text-purple-400 transition-colors">
+                      {analysis.complexity?.space}
+                    </span>
+                  </ComplexityTooltip>
                 </div>
                 <div className="summary-item">
                   <span className="summary-label">Data Structures</span>
                   <div className="data-structures">
                     {analysis.dataStructures?.map((ds, i) => (
-                      <span key={i} className="data-structure-tag">
-                        {ds}
-                      </span>
+                      <DataStructureTooltip
+                        key={i}
+                        dataStructure={ds}
+                        properties={getDataStructureProperties(ds)}
+                        useCases={getDataStructureUseCases(ds)}
+                      >
+                        <Badge variant="outline" className="mr-1 cursor-help hover:bg-purple-900/20 transition-colors">
+                          {ds}
+                        </Badge>
+                      </DataStructureTooltip>
                     ))}
                   </div>
                 </div>
