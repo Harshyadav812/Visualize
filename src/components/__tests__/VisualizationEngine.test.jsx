@@ -1,10 +1,11 @@
 import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import VisualizationEngine, { 
-  detectVisualizationType, 
-  validateVisualizationData 
-} from '../VisualizationEngine';
+import VisualizationEngine from '../VisualizationEngine';
+import {
+  detectVisualizationType,
+  validateVisualizationData
+} from '../../utils/visualizationEngineUtils';
 
 // Mock the visualizer components
 vi.mock('../visualizers/ArrayVisualizer', () => ({
@@ -49,10 +50,10 @@ describe('VisualizationEngine', () => {
   describe('Component Rendering', () => {
     it('should render array visualizer for array type', () => {
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={mockAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -72,10 +73,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={treeAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -94,10 +95,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={graphAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -116,10 +117,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={linkedListAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -138,10 +139,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={stackAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -160,10 +161,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={queueAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -182,10 +183,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={recursionAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -206,10 +207,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={windowAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -228,10 +229,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={pointersAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -242,10 +243,10 @@ describe('VisualizationEngine', () => {
   describe('Error Handling', () => {
     it('should show error for invalid analysis data', () => {
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={null}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -254,10 +255,10 @@ describe('VisualizationEngine', () => {
 
     it('should show error for invalid step index', () => {
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={mockAnalysis}
           currentStep={5}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -276,10 +277,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={unknownAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -298,10 +299,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={noVizAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -322,10 +323,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={upperCaseAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
@@ -344,10 +345,10 @@ describe('VisualizationEngine', () => {
       };
 
       render(
-        <VisualizationEngine 
+        <VisualizationEngine
           analysis={mixedCaseAnalysis}
           currentStep={0}
-          onStepChange={() => {}}
+          onStepChange={() => { }}
         />
       );
 
