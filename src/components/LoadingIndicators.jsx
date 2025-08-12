@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { Loader2 } from 'lucide-react';
 import { Progress } from './ui/progress';
 import { Badge } from './ui/badge';
@@ -26,6 +27,11 @@ export const ButtonSpinner = ({ size = 'sm', className = '' }) => {
   );
 };
 
+ButtonSpinner.propTypes = {
+  size: PropTypes.oneOf(['xs', 'sm', 'md', 'lg']),
+  className: PropTypes.string
+};
+
 /**
  * Inline loader with text
  */
@@ -36,6 +42,12 @@ export const InlineLoader = ({ text = "Loading...", showSpinner = true, classNam
       <span className="text-sm">{text}</span>
     </div>
   );
+};
+
+InlineLoader.propTypes = {
+  text: PropTypes.string,
+  showSpinner: PropTypes.bool,
+  className: PropTypes.string
 };
 
 /**
@@ -49,12 +61,21 @@ export const DotsLoader = ({ className = '' }) => (
   </div>
 );
 
+DotsLoader.propTypes = {
+  className: PropTypes.string
+};
+
 /**
  * Progress bar using shadcn/ui Progress component
  */
 export const ProgressBar = ({ progress = 0, className = '' }) => (
   <Progress value={Math.max(0, Math.min(100, progress))} className={className} />
 );
+
+ProgressBar.propTypes = {
+  progress: PropTypes.number,
+  className: PropTypes.string
+};
 
 /**
  * Status indicator using shadcn/ui Badge component
@@ -75,4 +96,10 @@ export const StatusDot = ({ status = 'active', children, className = '' }) => {
       {children || status}
     </Badge>
   );
+};
+
+StatusDot.propTypes = {
+  status: PropTypes.oneOf(['active', 'inactive', 'warning', 'error']),
+  children: PropTypes.node,
+  className: PropTypes.string
 };
