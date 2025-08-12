@@ -439,7 +439,7 @@ export class ArrayDataValidator extends BaseValidator {
 
       // Off-by-one errors in window highlighting
       if (highlights.window) {
-        const { start, end } = highlights.window;
+        const { start, end } = highlights.window; // eslint-disable-line no-unused-vars
         if (end === values.length) {
           this.addPitfall(`Array ${index}: Window end equals array length - potential off-by-one error`);
         }
@@ -1259,6 +1259,48 @@ export function validateVisualizationData(data, type) {
         subarrays: data.subarrays || []
       });
     }
+    case 'recursion': {
+      // Recursion visualization validation
+      validator = new BaseValidator();
+      if (!data) {
+        validator.addError('Data is null or undefined');
+        return validator.getResult({
+          callStack: [],
+          currentLevel: 0,
+          maxDepth: 0
+        });
+      }
+
+      // Validate callStack
+      const callStack = Array.isArray(data.callStack) ? data.callStack : [];
+      if (callStack.length === 0) {
+        validator.addError('callStack: is required for recursion visualization');
+      }
+
+      callStack.forEach((frame, index) => {
+        if (!frame || typeof frame !== 'object') {
+          validator.addError(`callStack[${index}]: must be an object`);
+        } else {
+          if (!frame.function && !frame.name) {
+            validator.addWarning(`callStack[${index}]: missing function name`);
+          }
+          if (frame.parameters && !Array.isArray(frame.parameters) && typeof frame.parameters !== 'object') {
+            validator.addWarning(`callStack[${index}].parameters: should be array or object`);
+          }
+        }
+      });
+
+      const currentLevel = typeof data.currentLevel === 'number' ? data.currentLevel : 0;
+      const maxDepth = typeof data.maxDepth === 'number' ? data.maxDepth : Math.max(callStack.length, currentLevel + 1);
+
+      return validator.getResult({
+        callStack: callStack,
+        currentLevel: Math.max(0, currentLevel),
+        maxDepth: Math.max(1, maxDepth),
+        variables: data.variables || {},
+        returnValues: data.returnValues || []
+      });
+    }
     default:
       // Generic validation
       validator = new BaseValidator();
@@ -1374,6 +1416,28 @@ export function sanitizeVisualizationData(data, type) {
       return new TreeDataValidator().sanitizeTreeData(sanitized);
     case 'graph':
       return new GraphDataValidator().sanitizeGraphData(sanitized);
+    case 'recursion':
+      {
+        // Sanitize recursion data
+        const callStack = Array.isArray(sanitized.callStack) ? sanitized.callStack : [];
+        const currentLevel = typeof sanitized.currentLevel === 'number' ? sanitized.currentLevel : 0;
+        const maxDepth = typeof sanitized.maxDepth === 'number' ? sanitized.maxDepth : Math.max(callStack.length, 1);
+
+        return {
+          callStack: callStack.map(frame => ({
+            function: frame?.function || frame?.name || 'Unknown',
+            parameters: frame?.parameters || [],
+            variables: frame?.variables || {},
+            returnValue: frame?.returnValue,
+            level: typeof frame?.level === 'number' ? frame.level : 0,
+            ...frame
+          })),
+          currentLevel: Math.max(0, currentLevel),
+          maxDepth: Math.max(1, maxDepth),
+          variables: sanitized.variables || {},
+          returnValues: Array.isArray(sanitized.returnValues) ? sanitized.returnValues : []
+        };
+      }
     default:
       return sanitized;
   }
