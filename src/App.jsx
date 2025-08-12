@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import React, { useState, useCallback, useMemo } from 'react'
 import './App.css'
 import { analyzeAlgorithm } from './services/geminiService'
+import cacheService from './services/cacheService'
 import AlgorithmVisualizer from './components/AlgorithmVisualizer'
+import { usePreloadVisualizers, getVisualizationTypes } from './components/LazyVisualizationLoader'
+import Header from './components/Header'
+import { ButtonSpinner, InlineLoader } from './components/LoadingIndicators'
 
 export default function App() {
   const [problem, setProblem] = useState('')
@@ -9,129 +13,205 @@ export default function App() {
   const [analysis, setAnalysis] = useState(null)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
   const [error, setError] = useState(null)
+  const [cacheStatus, setCacheStatus] = useState(null)
 
-  const handleAnalyze = async () => {
+  // Preload visualization components based on current analysis
+  const visualizationTypes = useMemo(() =>
+    analysis ? getVisualizationTypes(analysis) : ['array'],
+    [analysis]
+  );
+
+  usePreloadVisualizers(visualizationTypes);
+
+  // Memoized callback for better performance
+  const handleAnalyze = useCallback(async () => {
     if (!problem.trim() || !code.trim()) return;
-    
+
     setIsAnalyzing(true);
     setError(null);
-    
+    setCacheStatus(null);
+
     try {
-      const result = await analyzeAlgorithm(problem, code);
-      setAnalysis(result);
+      // Generate cache key based on problem, code, and input data
+      const cacheKey = cacheService.generateCacheKey(problem.trim(), code.trim(), null);
+
+      // Check cache first
+      const cachedResult = cacheService.getCachedAnalysis(cacheKey);
+
+      if (cachedResult) {
+        // Cache hit - use cached result
+        setCacheStatus({ type: 'hit', message: 'Using cached analysis result' });
+        setAnalysis(cachedResult);
+        console.log('Cache hit: Using cached analysis result');
+      } else {
+        // Cache miss - make API call
+        setCacheStatus({ type: 'miss', message: 'Generating new analysis...' });
+        console.log('Cache miss: Generating new analysis');
+
+        const result = await analyzeAlgorithm(problem, code);
+
+        // Store result in cache
+        try {
+          cacheService.setCachedAnalysis(cacheKey, result);
+          setCacheStatus({ type: 'stored', message: 'Analysis cached for future use' });
+        } catch (cacheError) {
+          console.warn('Failed to cache analysis result:', cacheError);
+          setCacheStatus({ type: 'cache_error', message: 'Analysis completed but caching failed' });
+        }
+
+        setAnalysis(result);
+      }
     } catch (err) {
-      setError(err.message);
+      // Handle cache errors gracefully with fallback to API calls
       console.error('Analysis error:', err);
+
+      try {
+        // If there was a cache-related error, try direct API call as fallback
+        if (err.message.includes('cache') || err.message.includes('Cache')) {
+          console.log('Cache error detected, attempting direct API call...');
+          setCacheStatus({ type: 'fallback', message: 'Cache error - using direct API call' });
+
+          const result = await analyzeAlgorithm(problem, code);
+          setAnalysis(result);
+        } else {
+          throw err; // Re-throw non-cache errors
+        }
+      } catch (fallbackErr) {
+        setError(fallbackErr.message);
+        setCacheStatus({ type: 'error', message: 'Both cache and API failed' });
+      }
     } finally {
       setIsAnalyzing(false);
     }
-  }
+  }, [problem, code]);
+
+  const handleNewAnalysis = useCallback(() => {
+    setAnalysis(null);
+    setCacheStatus(null);
+    setError(null);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-gray-100 flex flex-col">
-      <header className="bg-gray-800 border-b border-gray-700 p-4 text-center">
-        <h1 className="text-2xl font-bold text-blue-400">Visualize</h1>
-        <p className="text-gray-400">AI-Powered Algorithm Visualizer</p>
-      </header>
+    <div className="app-container">
+      <Header />
 
-      <div className="container mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 grow min-w-0">
-        {/* Input Panel */}
-        <div className="space-y-4 sm:space-y-6 flex flex-col h-full min-w-0">
-          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700 flex-1 min-h-0 flex flex-col">
-            <h2 className="text-lg font-semibold mb-4 text-blue-300">Problem Statement</h2>
-            <textarea
-              value={problem}
-              onChange={(e) => setProblem(e.target.value)}
-              className="w-full h-32 md:h-40 bg-gray-900 border border-gray-600 rounded-lg p-3 text-gray-100 resize-none focus:border-blue-400 focus:outline-none flex-1 min-h-0"
-              placeholder="Paste your DSA problem statement here..."
-            />
-          </div>
+      <main className={`main-content ${analysis ? 'analysis-active layout-wide' : ''}`}>
+        {!analysis ? (
+          <div className="input-section">
+            <div className="input-grid">
+              <div className="input-card">
+                <h2 className="input-title">Problem Statement</h2>
+                <textarea
+                  value={problem}
+                  onChange={(e) => setProblem(e.target.value)}
+                  className="input-textarea"
+                  placeholder="Describe the algorithm problem you want to visualize..."
+                />
+              </div>
 
-          <div className="bg-gray-800 rounded-lg p-4 sm:p-6 border border-gray-700 flex-1 min-h-0 flex flex-col">
-            <h2 className="text-lg font-semibold mb-4 text-blue-300">Your Solution</h2>
-            <textarea
-              value={code}
-              onChange={(e) => setCode(e.target.value)}
-              className="w-full h-48 md:h-56 bg-gray-900 border border-gray-600 rounded-lg p-3 text-gray-100 font-mono text-sm resize-none focus:border-blue-400 focus:outline-none flex-1 min-h-0"
-              placeholder="Paste your C++/JavaScript solution here..."
-            />
-          </div>
-
-          <button
-            onClick={handleAnalyze}
-            disabled={!problem || !code || isAnalyzing}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
-          >
-            {isAnalyzing ? 'Analyzing...' : '🔍 Analyze & Visualize'}
-          </button>
-        </div>
-
-
-        <div className="bg-gray-800 rounded-lg p-6 border border-gray-700">
-          <h2 className="text-lg font-semibold mb-4 text-blue-300">AI Analysis & Visualization</h2>
-
-          {error && (
-            <div className="bg-red-900/50 border border-red-600 rounded-lg p-4 mb-4">
-              <p className="text-red-300">❌ {error}</p>
-            </div>
-          )}
-
-          {!analysis ? (
-            <div className="flex items-center justify-center flex-1 min-h-0 text-gray-500">
-              <div className="text-center">
-                <div className="text-6xl mb-4">🤖</div>
-                <p>Enter a problem and solution to get started!</p>
+              <div className="input-card">
+                <h2 className="input-title">Solution Code</h2>
+                <textarea
+                  value={code}
+                  onChange={(e) => setCode(e.target.value)}
+                  className="input-textarea code-input"
+                  placeholder="Paste your solution code here..."
+                />
               </div>
             </div>
-          ) : (
-            <div className="space-y-4">
-              {/* Algorithm Info */}
-              <div className="bg-gray-900 rounded-lg p-4 border border-gray-600">
-                <h3 className="text-green-400 font-semibold mb-2">🧠 Algorithm Analysis</h3>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-gray-400">Type:</span>
-                    <span className="ml-2 text-blue-300">{analysis.algorithmType}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-400">Complexity:</span>
-                    <span className="ml-2 text-yellow-300">{analysis.complexity?.time}</span>
-                  </div>
+
+            <div className="analyze-section">
+              <button
+                onClick={handleAnalyze}
+                disabled={!problem || !code || isAnalyzing}
+                className="analyze-button"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <ButtonSpinner size="sm" className="text-current" />
+                    Analyzing...
+                  </>
+                ) : (
+                  'Analyze Algorithm'
+                )}
+              </button>
+
+              {isAnalyzing && (
+                <InlineLoader
+                  text="Processing your algorithm for visualization"
+                  showSpinner={false}
+                  className="text-text-secondary"
+                />
+              )}
+            </div>
+
+            {error && (
+              <div className="error-message">
+                <p>{error}</p>
+              </div>
+            )}
+
+            {cacheStatus && (
+              <div className={`status-message status-${cacheStatus.type}`}>
+                <p>{cacheStatus.message}</p>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="visualization-section layout-wide">
+            <div className="algorithm-summary">
+              <div className="summary-header">
+                <h2 className="summary-title">Algorithm Analysis</h2>
+                <div className="summary-actions">
+                  {cacheStatus && (
+                    <span className={`cache-indicator cache-${cacheStatus.type}`}>
+                      {cacheStatus.type === 'hit' ? 'Cached' :
+                        cacheStatus.type === 'stored' ? 'Cached' :
+                          cacheStatus.type === 'fallback' ? 'Fallback' :
+                            'Fresh'}
+                    </span>
+                  )}
+                  <button
+                    onClick={handleNewAnalysis}
+                    className="new-analysis-button"
+                  >
+                    New Analysis
+                  </button>
                 </div>
-                <div className="mt-2">
-                  <span className="text-gray-400">Data Structures:</span>
-                  <div className="flex flex-wrap gap-1 mt-1">
+              </div>
+
+              <div className="summary-grid">
+                <div className="summary-item">
+                  <span className="summary-label">Algorithm Type</span>
+                  <span className="summary-value">{analysis.algorithmType}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Time Complexity</span>
+                  <span className="summary-value complexity">{analysis.complexity?.time}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Space Complexity</span>
+                  <span className="summary-value complexity">{analysis.complexity?.space}</span>
+                </div>
+                <div className="summary-item">
+                  <span className="summary-label">Data Structures</span>
+                  <div className="data-structures">
                     {analysis.dataStructures?.map((ds, i) => (
-                      <span key={i} className="bg-purple-600/30 text-purple-300 px-2 py-1 rounded text-xs">
+                      <span key={i} className="data-structure-tag">
                         {ds}
                       </span>
                     ))}
                   </div>
                 </div>
               </div>
-
-              
-              <div className="bg-gray-900 rounded-lg p-4 border border-gray-600">
-                <h3 className="text-green-400 font-semibold mb-2">📊 Key Variables</h3>
-                <div className="space-y-2">
-                  {analysis.keyVariables?.map((variable, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm">
-                      <span className="text-blue-300 font-mono">{variable.name}</span>
-                      <span className="text-gray-400">{variable.description}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              
-              <div className="bg-gray-900 rounded-lg p-4 border border-gray-600">
-                <h3 className="text-green-400 font-semibold mb-4">🎬 Step-by-Step Visualization</h3>
-                <AlgorithmVisualizer analysis={analysis} />
-              </div>
             </div>
-          )}
-        </div>
-      </div>
+
+            <div className="visualization-container">
+              <AlgorithmVisualizer analysis={analysis} originalCode={code} />
+            </div>
+          </div>
+        )}
+      </main>
     </div>
   )
 }
