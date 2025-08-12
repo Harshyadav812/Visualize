@@ -1,0 +1,583 @@
+/* Design Token System - Modern Dark Theme */
+
+:root {
+  /* ===== COLOR PALETTE - DARK THEME ===== */
+
+  /* Background Colors */
+  --color-background-primary: #0a0a0b; /* Main background */
+  --color-background-secondary: #1a1a1c; /* Card backgrounds */
+  --color-background-tertiary: #2a2a2d; /* Elevated elements */
+
+  /* Surface Colors */
+  --color-surface-primary: #1e1e21; /* Primary surfaces */
+  --color-surface-secondary: #2d2d31; /* Secondary surfaces */
+  --color-surface-tertiary: #3a3a3f; /* Interactive surfaces */
+
+  /* Text Colors */
+  --color-text-primary: #f8f9fa; /* Primary text */
+  --color-text-secondary: #d1d5db; /* Secondary text */
+  --color-text-tertiary: #9ca3af; /* Tertiary text */
+  --color-text-muted: #6b7280; /* Muted text */
+
+  /* Accent Colors */
+  --color-accent-primary: #6366f1; /* Primary actions (indigo) */
+  --color-accent-secondary: #10b981; /* Success/positive */
+  --color-accent-warning: #f59e0b; /* Warnings */
+  --color-accent-error: #ef4444; /* Errors */
+
+  /* Code Colors */
+  --color-code-background: #1a1a1c; /* Code block background */
+  --color-code-text: #e5e7eb; /* Code text */
+  --color-code-highlight: #374151; /* Code highlighting */
+  --color-code-comment: #6b7280; /* Code comments */
+  --color-code-keyword: #818cf8; /* Code keywords aligned with new accent */
+  --color-code-string: #10b981; /* Code strings */
+  --color-code-number: #f59e0b; /* Code numbers */
+
+  /* Border Colors */
+  --color-border-primary: #374151; /* Primary borders */
+  --color-border-secondary: #4b5563; /* Secondary borders */
+  --color-border-subtle: #2d2d31; /* Subtle borders */
+
+  /* ===== TYPOGRAPHY SCALE ===== */
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem; /* 12px */
+  --font-size-sm: 0.875rem; /* 14px */
+  --font-size-base: 1rem; /* 16px */
+  --font-size-lg: 1.125rem; /* 18px */
+  --font-size-xl: 1.25rem; /* 20px */
+  --font-size-2xl: 1.5rem; /* 24px */
+  --font-size-3xl: 1.875rem; /* 30px */
+  --font-size-4xl: 2.25rem; /* 36px */
+
+  /* Font Weights */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+
+  /* Font Families */
+  --font-family-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", sans-serif;
+  --font-family-mono: "JetBrains Mono", "Fira Code", "Consolas", "Monaco",
+    "Courier New", monospace;
+
+  /* ===== SPACING SYSTEM ===== */
+
+  --spacing-xs: 0.25rem; /* 4px */
+  --spacing-sm: 0.5rem; /* 8px */
+  --spacing-md: 1rem; /* 16px */
+  --spacing-lg: 1.5rem; /* 24px */
+  --spacing-xl: 2rem; /* 32px */
+  --spacing-2xl: 3rem; /* 48px */
+  --spacing-3xl: 4rem; /* 64px */
+  --spacing-4xl: 6rem; /* 96px */
+
+  /* ===== BORDER RADIUS ===== */
+
+  --radius-none: 0;
+  --radius-sm: 0.375rem; /* 6px */
+  --radius-md: 0.5rem; /* 8px */
+  --radius-lg: 0.75rem; /* 12px */
+  --radius-xl: 1rem; /* 16px */
+  --radius-full: 9999px;
+
+  /* ===== SHADOWS ===== */
+
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1),
+    0 4px 6px -4px rgb(0 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1),
+    0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.05);
+
+  /* ===== ANIMATION DURATIONS ===== */
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  /* ===== ANIMATION EASINGS ===== */
+
+  --ease-linear: linear;
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ===== Z-INDEX SCALE ===== */
+
+  --z-index-dropdown: 1000;
+  --z-index-sticky: 1020;
+  --z-index-fixed: 1030;
+  --z-index-modal-backdrop: 1040;
+  --z-index-modal: 1050;
+  --z-index-popover: 1060;
+  --z-index-tooltip: 1070;
+
+  /* ===== COMPONENT SPECIFIC TOKENS ===== */
+
+  /* Button Tokens */
+  --button-height-sm: 2rem;
+  --button-height-md: 2.5rem;
+  --button-height-lg: 3rem;
+  --button-padding-x-sm: 0.75rem;
+  --button-padding-x-md: 1rem;
+  --button-padding-x-lg: 1.5rem;
+
+  /* Input Tokens */
+  --input-height-sm: 2rem;
+  --input-height-md: 2.5rem;
+  --input-height-lg: 3rem;
+  --input-padding-x: 0.75rem;
+  --input-padding-y: 0.5rem;
+
+  /* Card Tokens */
+  --card-padding-sm: 1rem;
+  --card-padding-md: 1.5rem;
+  --card-padding-lg: 2rem;
+
+  /* Layout Tokens */
+  --container-max-width: 1200px;
+  --header-height: 4rem;
+  --sidebar-width: 16rem;
+
+  /* Responsive Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  /* Responsive Layout Tokens */
+  --container-padding-mobile: var(--spacing-md);
+  --container-padding-tablet: var(--spacing-lg);
+  --container-padding-desktop: var(--spacing-xl);
+
+  --grid-gap-mobile: var(--spacing-md);
+  --grid-gap-tablet: var(--spacing-lg);
+  --grid-gap-desktop: var(--spacing-xl);
+
+  --header-height-mobile: 3.5rem;
+  --header-height-tablet: 4rem;
+  --header-height-desktop: 4rem;
+}
+
+/* ===== SEMANTIC COLOR MAPPINGS ===== */
+
+:root {
+  /* Map semantic colors to design tokens for easier component usage */
+  --color-primary: var(--color-accent-primary);
+  --color-success: var(--color-accent-secondary);
+  --color-warning: var(--color-accent-warning);
+  --color-error: var(--color-accent-error);
+
+  /* Background semantic mappings */
+  --color-bg: var(--color-background-primary);
+  --color-bg-subtle: var(--color-background-secondary);
+  --color-bg-muted: var(--color-background-tertiary);
+
+  /* Surface semantic mappings */
+  --color-surface: var(--color-surface-primary);
+  --color-surface-subtle: var(--color-surface-secondary);
+  --color-surface-muted: var(--color-surface-tertiary);
+
+  /* Text semantic mappings */
+  --color-text: var(--color-text-primary);
+  --color-text-subtle: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-tertiary);
+
+  /* Border semantic mappings */
+  --color-border: var(--color-border-primary);
+  --color-border-subtle: var(--color-border-secondary);
+}
+
+/* ===== UTILITY CLASSES FOR DESIGN TOKENS ===== */
+
+/* Typography utilities */
+.text-display {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+.text-heading {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  color: var(--color-text-primary);
+}
+
+.text-body {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-secondary);
+}
+
+.text-caption {
+  font-family: var(--font-family-sans);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-text-tertiary);
+}
+
+.text-code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-normal);
+  line-height: var(--line-height-normal);
+  color: var(--color-code-text);
+}
+
+/* Spacing utilities */
+.space-xs {
+  margin: var(--spacing-xs);
+}
+.space-sm {
+  margin: var(--spacing-sm);
+}
+.space-md {
+  margin: var(--spacing-md);
+}
+.space-lg {
+  margin: var(--spacing-lg);
+}
+.space-xl {
+  margin: var(--spacing-xl);
+}
+
+.gap-xs {
+  gap: var(--spacing-xs);
+}
+.gap-sm {
+  gap: var(--spacing-sm);
+}
+.gap-md {
+  gap: var(--spacing-md);
+}
+.gap-lg {
+  gap: var(--spacing-lg);
+}
+.gap-xl {
+  gap: var(--spacing-xl);
+}
+
+/* Surface utilities */
+.surface-primary {
+  background-color: var(--color-surface-primary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.surface-secondary {
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+}
+
+.surface-tertiary {
+  background-color: var(--color-surface-tertiary);
+  border: 1px solid var(--color-border-primary);
+  border-radius: var(--radius-md);
+}
+
+/* Animation utilities */
+.transition-fast {
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out);
+}
+
+.transition-normal {
+  transition-duration: var(--duration-normal);
+  transition-timing-function: var(--ease-out);
+}
+
+.transition-slow {
+  transition-duration: var(--duration-slow);
+  transition-timing-function: var(--ease-out);
+}
+
+/* Focus utilities */
+.focus-ring {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+}
+
+/* ===== ACCESSIBILITY ENHANCEMENTS ===== */
+
+/* Respect user motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-normal: 0ms;
+    --duration-slow: 0ms;
+    --duration-slower: 0ms;
+  }
+
+  .transition-fast,
+  .transition-normal,
+  .transition-slow {
+    transition: none;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --color-border-primary: #ffffff;
+    --color-border-secondary: #ffffff;
+    --color-text-primary: #ffffff;
+    --color-text-secondary: #ffffff;
+  }
+}
+
+/* ===== RESPONSIVE LAYOUT UTILITIES ===== */
+
+/* Container utilities */
+.container-responsive {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding-mobile);
+}
+
+@media (min-width: 768px) {
+  .container-responsive {
+    padding: 0 var(--container-padding-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    padding: 0 var(--container-padding-desktop);
+  }
+}
+
+/* Grid utilities */
+.grid-responsive-2 {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap-mobile);
+}
+
+@media (min-width: 768px) {
+  .grid-responsive-2 {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--grid-gap-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive-2 {
+    gap: var(--grid-gap-desktop);
+  }
+}
+
+.grid-responsive-auto {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--grid-gap-mobile);
+}
+
+@media (min-width: 640px) {
+  .grid-responsive-auto {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
+}
+
+@media (min-width: 768px) {
+  .grid-responsive-auto {
+    gap: var(--grid-gap-tablet);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-responsive-auto {
+    gap: var(--grid-gap-desktop);
+  }
+}
+
+/* Flex utilities */
+.flex-responsive-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .flex-responsive-column {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-lg);
+  }
+}
+
+.flex-responsive-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+@media (min-width: 768px) {
+  .flex-responsive-wrap {
+    gap: var(--spacing-md);
+  }
+}
+
+/* Spacing utilities */
+.spacing-responsive {
+  padding: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .spacing-responsive {
+    padding: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .spacing-responsive {
+    padding: var(--spacing-xl);
+  }
+}
+
+.gap-responsive {
+  gap: var(--spacing-md);
+}
+
+@media (min-width: 768px) {
+  .gap-responsive {
+    gap: var(--spacing-lg);
+  }
+}
+
+@media (min-width: 1024px) {
+  .gap-responsive {
+    gap: var(--spacing-xl);
+  }
+}
+
+/* Typography responsive utilities */
+.text-responsive-title {
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-tight);
+}
+
+@media (min-width: 768px) {
+  .text-responsive-title {
+    font-size: var(--font-size-2xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .text-responsive-title {
+    font-size: var(--font-size-3xl);
+  }
+}
+
+.text-responsive-heading {
+  font-size: var(--font-size-lg);
+  line-height: var(--line-height-tight);
+}
+
+@media (min-width: 768px) {
+  .text-responsive-heading {
+    font-size: var(--font-size-xl);
+  }
+}
+
+/* Visibility utilities */
+.hidden-mobile {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .hidden-mobile {
+    display: block;
+  }
+}
+
+.hidden-desktop {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .hidden-desktop {
+    display: none;
+  }
+}
+
+.show-mobile-only {
+  display: block;
+}
+
+@media (min-width: 768px) {
+  .show-mobile-only {
+    display: none;
+  }
+}
+
+.show-tablet-up {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .show-tablet-up {
+    display: block;
+  }
+}
+
+/* ===== COMPONENT VARIANT TOKENS ===== */
+
+:root {
+  /* Button Variants */
+  --button-primary-bg: var(--color-accent-primary);
+  --button-primary-text: #ffffff;
+  --button-primary-hover: #4f46e5;
+  --button-primary-active: #4338ca;
+
+  --button-secondary-bg: var(--color-surface-secondary);
+  --button-secondary-text: var(--color-text-primary);
+  --button-secondary-hover: var(--color-surface-tertiary);
+  --button-secondary-active: var(--color-surface-tertiary);
+
+  --button-ghost-bg: transparent;
+  --button-ghost-text: var(--color-text-secondary);
+  --button-ghost-hover: var(--color-surface-secondary);
+  --button-ghost-active: var(--color-surface-tertiary);
+
+  /* Card Variants */
+  --card-primary-bg: var(--color-surface-primary);
+  --card-primary-border: var(--color-border-subtle);
+
+  --card-secondary-bg: var(--color-surface-secondary);
+  --card-secondary-border: var(--color-border-subtle);
+
+  --card-subtle-bg: var(--color-background-secondary);
+  --card-subtle-border: var(--color-border-subtle);
+
+  /* Input Variants */
+  --input-bg: var(--color-surface-primary);
+  --input-border: var(--color-border-primary);
+  --input-border-focus: var(--color-accent-primary);
+  --input-text: var(--color-text-primary);
+  --input-placeholder: var(--color-text-muted);
+}

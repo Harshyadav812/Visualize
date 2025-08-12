@@ -1,0 +1,359 @@
+/* Base transition properties for all interactive elements */
+*:where(
+    button,
+    input,
+    textarea,
+    select,
+    [role="button"],
+    [tabindex]:not([tabindex="-1"]),
+    a
+  ):not(.no-transition) {
+  transition-property: color, background-color, border-color,
+    text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter,
+    backdrop-filter;
+  transition-duration: var(--duration-fast);
+  transition-timing-function: var(--ease-out);
+}
+
+button:not(:disabled) {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
+  transition-duration: var(--duration-fast);
+}
+
+/* Primary button specific transitions */
+.analyze-button:not(:disabled) {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.analyze-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px rgba(59, 130, 246, 0.4);
+}
+
+.analyze-button:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+/* Secondary button transitions */
+.new-analysis-button {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.new-analysis-button:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Ghost button transitions (for controls) */
+button[class*="text-text-tertiary"] {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+button[class*="text-text-tertiary"]:hover {
+  transform: scale(1.05);
+}
+
+.input-textarea {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.input-textarea:focus {
+  transform: scale(1.01);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-textarea:hover:not(:focus) {
+  border-color: var(--color-border-secondary);
+}
+
+select {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+select:focus {
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+select:hover:not(:focus) {
+  border-color: var(--color-border-secondary);
+}
+
+.input-card,
+.algorithm-summary,
+.summary-item {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.input-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-border-secondary);
+}
+
+.summary-item:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-border-secondary);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--color-accent-primary);
+  outline-offset: 2px;
+  transition: outline-offset var(--duration-fast) var(--ease-out);
+}
+
+*:disabled {
+  transition: opacity var(--duration-normal) var(--ease-out);
+}
+
+.status-message,
+.error-message {
+  transition: all var(--duration-normal) var(--ease-out);
+  animation: slideInFromTop var(--duration-normal) var(--ease-out);
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Cache indicator transitions */
+.cache-indicator {
+  transition: all var(--duration-fast) var(--ease-out);
+  animation: fadeInScale var(--duration-normal) var(--ease-out);
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ===== VISUALIZATION CONTROL TRANSITIONS ===== */
+
+/* Progress bar smooth transitions */
+div[style*="width"] {
+  transition: width var(--duration-normal) var(--ease-out) !important;
+}
+
+/* Control button hover states */
+button[title] {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+button[title]:hover:not(:disabled) {
+  transform: scale(1.1);
+  color: var(--color-text-primary);
+}
+
+/* Play/pause button special transitions */
+button[title*="Play"],
+button[title*="Pause"] {
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+button[title*="Play"]:hover,
+button[title*="Pause"]:hover {
+  transform: scale(1.15);
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* ===== OVERLAY AND MODAL TRANSITIONS ===== */
+
+/* Code and details overlay transitions */
+div[class*="absolute inset-0"] {
+  animation: fadeInBackdrop var(--duration-normal) var(--ease-out);
+}
+
+@keyframes fadeInBackdrop {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(4px);
+  }
+}
+
+/* Modal content slide-in animation */
+div[class*="absolute inset-0"] > div {
+  animation: slideInFromBottom var(--duration-normal) var(--ease-out);
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Close button transitions */
+button:contains("✕") {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+button:contains("✕"):hover {
+  transform: rotate(90deg) scale(1.1);
+  color: var(--color-accent-error);
+}
+
+/* ===== STEP INDICATOR TRANSITIONS ===== */
+
+/* Step counter transitions */
+span[class*="font-mono"] {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+/* Variable state card transitions */
+div[class*="bg-surface-secondary rounded p-2"] {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+div[class*="bg-surface-secondary rounded p-2"]:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+  background-color: var(--color-surface-tertiary);
+}
+
+/* ===== CODE HIGHLIGHTING TRANSITIONS ===== */
+
+/* Code line highlight transitions */
+div[class*="bg-yellow-500/20"] {
+  transition: all var(--duration-normal) var(--ease-out);
+  animation: highlightPulse 1s var(--ease-out);
+}
+
+@keyframes highlightPulse {
+  0% {
+    background-color: rgba(245, 158, 11, 0.4);
+    transform: scale(1.01);
+  }
+  50% {
+    background-color: rgba(245, 158, 11, 0.3);
+  }
+  100% {
+    background-color: rgba(245, 158, 11, 0.2);
+    transform: scale(1);
+  }
+}
+
+/* ===== DATA STRUCTURE TAG TRANSITIONS ===== */
+
+/* Data structure tags hover effects */
+.data-structure-tag {
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.data-structure-tag:hover {
+  transform: scale(1.05);
+  background-color: rgba(59, 130, 246, 0.3);
+}
+
+/* ===== RESPONSIVE TRANSITION ADJUSTMENTS ===== */
+
+/* Reduce motion on mobile for better performance */
+@media (max-width: 768px) {
+  button:hover:not(:disabled) {
+    transform: none;
+  }
+
+  .input-card:hover,
+  .summary-item:hover {
+    transform: translateY(-1px);
+  }
+}
+
+/* Enhanced transitions for larger screens */
+@media (min-width: 1024px) {
+  .input-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-xl);
+  }
+
+  button:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+}
+
+/* ===== ACCESSIBILITY CONSIDERATIONS ===== */
+
+/* Respect reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  *:focus-visible {
+    transition: outline-offset 0.01ms;
+  }
+
+  /* Maintain hover states for usability */
+  button:hover:not(:disabled),
+  .input-textarea:hover,
+  .input-card:hover,
+  .summary-item:hover {
+    transform: none;
+  }
+}
+
+/* High contrast mode adjustments */
+@media (prefers-contrast: high) {
+  *:focus-visible {
+    outline-width: 3px;
+    outline-color: currentColor;
+  }
+
+  button:hover:not(:disabled) {
+    outline: 2px solid currentColor;
+  }
+}
+
+/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+
+/* Use transform and opacity for better performance */
+.performance-optimized {
+  will-change: transform, opacity;
+}
+
+/* Contain layout shifts during transitions */
+.transition-container {
+  contain: layout style paint;
+}
+
+/* GPU acceleration for smooth animations */
+button,
+.input-card,
+.summary-item {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
