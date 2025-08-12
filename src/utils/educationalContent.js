@@ -31,8 +31,8 @@ const ALGORITHM_EXAMPLES = {
   'sorting': ['Merge sort', 'Quick sort', 'Heap sort']
 };
 
-// Complexity descriptions
-const COMPLEXITY_DESCRIPTIONS = {
+// Time complexity descriptions
+const TIME_COMPLEXITY_DESCRIPTIONS = {
   'O(1)': 'Constant time - executes in the same time regardless of input size. Most efficient.',
   'O(log n)': 'Logarithmic time - execution time grows logarithmically with input size. Very efficient.',
   'O(n)': 'Linear time - execution time grows linearly with input size. Generally acceptable.',
@@ -41,6 +41,18 @@ const COMPLEXITY_DESCRIPTIONS = {
   'O(n³)': 'Cubic time - execution time grows cubically. Generally inefficient for large inputs.',
   'O(2^n)': 'Exponential time - execution time doubles with each additional input. Very inefficient.',
   'O(n!)': 'Factorial time - execution time grows factorially. Extremely inefficient.'
+};
+
+// Space complexity descriptions
+const SPACE_COMPLEXITY_DESCRIPTIONS = {
+  'O(1)': 'Constant space - uses fixed amount of memory regardless of input size. Most memory efficient.',
+  'O(log n)': 'Logarithmic space - memory usage grows logarithmically, often from recursion depth. Very space efficient.',
+  'O(n)': 'Linear space - memory usage grows linearly with input size. Common for storing input copies.',
+  'O(n log n)': 'Log-linear space - memory grows at n log n rate, often from divide-and-conquer algorithms.',
+  'O(n²)': 'Quadratic space - memory usage grows quadratically. Often from 2D arrays or nested structures.',
+  'O(n³)': 'Cubic space - memory usage grows cubically. Generally high memory usage.',
+  'O(2^n)': 'Exponential space - memory usage doubles with each input increase. Very memory intensive.',
+  'O(n!)': 'Factorial space - memory usage grows factorially. Extremely memory intensive.'
 };
 
 // Data structure properties
@@ -77,8 +89,8 @@ const DATA_STRUCTURE_USE_CASES = {
  * @returns {string} - Explanation of the algorithm
  */
 export function getAlgorithmExplanation(algorithmType) {
-  return ALGORITHM_EXPLANATIONS[algorithmType?.toLowerCase()] || 
-         'An algorithmic approach for solving computational problems efficiently.';
+  return ALGORITHM_EXPLANATIONS[algorithmType?.toLowerCase()] ||
+    'An algorithmic approach for solving computational problems efficiently.';
 }
 
 /**
@@ -93,17 +105,23 @@ export function getAlgorithmExamples(algorithmType) {
 /**
  * Get description for a complexity notation
  * @param {string} complexity - The complexity notation (e.g., "O(n)")
+ * @param {string} type - The type of complexity ('time' or 'space')
  * @returns {string} - Description of the complexity
  */
-export function getComplexityDescription(complexity) {
-  if (!complexity) return 'Time/space usage analysis for the algorithm.';
-  
+export function getComplexityDescription(complexity, type = 'time') {
+  if (!complexity) return 'Complexity analysis for the algorithm.';
+
   // Extract the complexity notation from the string
   const match = complexity.match(/O\([^)]+\)/);
   const notation = match ? match[0] : complexity;
-  
-  return COMPLEXITY_DESCRIPTIONS[notation] || 
-         `${notation} - The algorithm's time/space grows at this rate with input size.`;
+
+  // Choose the appropriate description dictionary
+  const descriptions = type.toLowerCase() === 'space'
+    ? SPACE_COMPLEXITY_DESCRIPTIONS
+    : TIME_COMPLEXITY_DESCRIPTIONS;
+
+  return descriptions[notation] ||
+    `${notation} - The algorithm's ${type} complexity grows at this rate with input size.`;
 }
 
 /**
