@@ -5,7 +5,7 @@
 
 export const TOOLTIP_WIDTHS = {
   sm: 'max-w-sm',
-  md: 'max-w-md', 
+  md: 'max-w-md',
   lg: 'max-w-lg',
   xl: 'max-w-xl'
 };
@@ -21,7 +21,7 @@ export const COMPLEXITY_CONFIG = {
     color: 'text-blue-400'
   },
   [COMPLEXITY_TYPES.SPACE]: {
-    title: 'Space Complexity', 
+    title: 'Space Complexity',
     color: 'text-purple-400'
   }
 };
