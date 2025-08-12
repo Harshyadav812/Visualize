@@ -1,0 +1,290 @@
+/* GraphVisualizer CSS Animations and Styles */
+
+/* Keyframe animations for graph elements */
+@keyframes dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px currentColor);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px currentColor);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Graph container styles */
+.graph-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+}
+
+/* SVG styles */
+.graph-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Vertex styles */
+.graph-vertex {
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.graph-vertex:hover {
+  filter: brightness(1.2);
+}
+
+.graph-vertex.current {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.graph-vertex.visited {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.graph-vertex.shortest-path {
+  animation: glow 2s ease-in-out infinite;
+}
+
+/* Edge styles */
+.graph-edge {
+  transition: all 0.5s ease;
+}
+
+.graph-edge.traversed {
+  animation: dash 2s linear infinite;
+}
+
+.graph-edge.shortest-path {
+  animation: glow 1.5s ease-in-out infinite;
+}
+
+.graph-edge.current {
+  animation: dash 1s linear infinite;
+}
+
+/* Weight label styles */
+.edge-weight {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: central;
+}
+
+/* Algorithm display styles */
+.algorithm-display {
+  animation: slideIn 0.5s ease-out;
+}
+
+.algorithm-stat {
+  transition: all 0.3s ease;
+}
+
+.algorithm-stat:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Statistics grid styles */
+.stats-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid #4b5563;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: #6b7280;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.stat-icon {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Layout status styles */
+.layout-status {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  animation: slideIn 0.3s ease-out;
+}
+
+.layout-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Traversal path styles */
+.traversal-path {
+  stroke-dasharray: 5, 5;
+  animation: dash 2s linear infinite;
+}
+
+.traversal-highlight {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .algorithm-display {
+    padding: 0.75rem;
+  }
+  
+  .stat-card {
+    padding: 0.5rem;
+  }
+  
+  .stat-value {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .graph-container {
+    min-height: 300px;
+  }
+}
+
+/* Dark theme enhancements */
+.dark .graph-container {
+  background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+}
+
+.dark .stat-card {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  border-color: #334155;
+}
+
+.dark .stat-card:hover {
+  border-color: #475569;
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .graph-vertex {
+    stroke-width: 3;
+  }
+  
+  .graph-edge {
+    stroke-width: 2;
+  }
+  
+  .edge-weight {
+    font-weight: 900;
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .graph-vertex.current,
+  .graph-edge.traversed,
+  .graph-edge.shortest-path,
+  .traversal-path,
+  .traversal-highlight {
+    animation: none;
+  }
+  
+  .graph-vertex,
+  .graph-edge,
+  .algorithm-stat,
+  .stat-card {
+    transition: none;
+  }
+}
+
+/* Print styles */
+@media print {
+  .graph-container {
+    background: white;
+    border: 2px solid black;
+  }
+  
+  .algorithm-display,
+  .stats-grid {
+    break-inside: avoid;
+  }
+}

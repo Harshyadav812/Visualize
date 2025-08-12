@@ -1,0 +1,42 @@
+/* Clean, descriptive styles for ArrayVisualizer */
+
+/* Simple fade in for new elements */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Clean array element styling */
+.array-element {
+  transition: border-color 0.2s ease;
+}
+
+.array-element:hover {
+  border-color: #9ca3af;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .array-element {
+    width: 3rem;
+    height: 3rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .array-element {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 0.75rem;
+  }
+}
