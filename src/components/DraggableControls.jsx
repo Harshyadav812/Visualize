@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Bars3Icon } from '@heroicons/react/24/solid';
+import { GripVertical, Minimize2, Maximize2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 /**
- * Draggable wrapper component that makes any content draggable around the screen
+ * Enhanced draggable wrapper component with better UX and positioning
  */
 export default function DraggableControls({
   children,
-  initialPosition = { x: 20, y: 20 },
+  initialPosition = { x: 20, y: 100 }, // Start lower to avoid header overlap
   className = '',
-  dragHandleClassName = '',
   onPositionChange
 }) {
   const [position, setPosition] = useState(initialPosition);
@@ -30,59 +31,8 @@ export default function DraggableControls({
     });
   };
 
-  // Handle mouse move while dragging
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-
-    e.preventDefault();
-
-    const newPosition = {
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y
-    };
-
-    // Keep within viewport bounds
-    const container = containerRef.current;
-    if (container) {
-      const rect = container.getBoundingClientRect();
-      const viewportWidth = window.innerWidth;
-      const viewportHeight = window.innerHeight;
-
-      newPosition.x = Math.max(0, Math.min(newPosition.x, viewportWidth - rect.width));
-      newPosition.y = Math.max(0, Math.min(newPosition.y, viewportHeight - rect.height));
-    }
-
-    setPosition(newPosition);
-
-    if (onPositionChange) {
-      onPositionChange(newPosition);
-    }
-  };
-
-  // Handle mouse up
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  // Add global mouse event listeners when dragging
-  useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
-      document.body.style.userSelect = 'none'; // Prevent text selection while dragging
-
-      return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-        document.body.style.userSelect = '';
-      };
-    }
-  }, [isDragging, dragStart, position]);
-
-  // Touch event handlers for mobile support
+  // Touch events for mobile
   const handleTouchStart = (e) => {
-    if (e.touches.length !== 1) return;
-
     const touch = e.touches[0];
     setIsDragging(true);
     setDragStart({
@@ -92,25 +42,24 @@ export default function DraggableControls({
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging || e.touches.length !== 1) return;
-
+    if (!isDragging) return;
     e.preventDefault();
-    const touch = e.touches[0];
 
+    const touch = e.touches[0];
     const newPosition = {
       x: touch.clientX - dragStart.x,
       y: touch.clientY - dragStart.y
     };
 
-    // Keep within viewport bounds
     const container = containerRef.current;
     if (container) {
       const rect = container.getBoundingClientRect();
       const viewportWidth = window.innerWidth;
       const viewportHeight = window.innerHeight;
+      const margin = 20;
 
-      newPosition.x = Math.max(0, Math.min(newPosition.x, viewportWidth - rect.width));
-      newPosition.y = Math.max(0, Math.min(newPosition.y, viewportHeight - rect.height));
+      newPosition.x = Math.max(margin, Math.min(newPosition.x, viewportWidth - rect.width - margin));
+      newPosition.y = Math.max(margin, Math.min(newPosition.y, viewportHeight - rect.height - margin));
     }
 
     setPosition(newPosition);
@@ -124,6 +73,50 @@ export default function DraggableControls({
     setIsDragging(false);
   };
 
+  // Add event listeners for mouse move and up
+  useEffect(() => {
+    if (!isDragging) return;
+
+    const handleMouseMoveEffect = (e) => {
+      e.preventDefault();
+
+      const newPosition = {
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      };
+
+      // Keep within viewport bounds with better margins
+      const container = containerRef.current;
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const margin = 20; // Safe margin from edges
+
+        newPosition.x = Math.max(margin, Math.min(newPosition.x, viewportWidth - rect.width - margin));
+        newPosition.y = Math.max(margin, Math.min(newPosition.y, viewportHeight - rect.height - margin));
+      }
+
+      setPosition(newPosition);
+
+      if (onPositionChange) {
+        onPositionChange(newPosition);
+      }
+    };
+
+    const handleMouseUpEffect = () => {
+      setIsDragging(false);
+    };
+
+    document.addEventListener('mousemove', handleMouseMoveEffect);
+    document.addEventListener('mouseup', handleMouseUpEffect);
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMoveEffect);
+      document.removeEventListener('mouseup', handleMouseUpEffect);
+    };
+  }, [isDragging, dragStart, onPositionChange]);
+
   // Toggle collapse state
   const handleToggleCollapse = (e) => {
     e.stopPropagation();
@@ -131,22 +124,24 @@ export default function DraggableControls({
   };
 
   return (
-    <div
+    <Card
       ref={containerRef}
-      className={`fixed bg-surface-primary border border-surface-tertiary rounded-lg shadow-lg backdrop-blur-sm z-50 transition-all duration-200 ${isDragging ? 'shadow-xl scale-105' : 'shadow-lg'
+      className={`fixed backdrop-blur-sm transition-all duration-200 ${isDragging ? 'shadow-2xl scale-[1.02] ring-2 ring-primary/20' : 'shadow-lg'
         } ${isCollapsed ? 'h-auto' : ''} ${className}`}
       style={{
         left: position.x,
         top: position.y,
+        zIndex: 40, // Lower z-index to avoid overlapping important UI
         cursor: isDragging ? 'grabbing' : 'default',
-        maxWidth: '90vw',
-        maxHeight: '90vh'
+        maxWidth: 'min(400px, 90vw)',
+        maxHeight: '80vh'
       }}
     >
       {/* Drag handle header */}
       <div
         ref={dragRef}
-        className={`flex items-center justify-between px-3 py-2 border-b border-surface-tertiary bg-surface-secondary/50 rounded-t-lg cursor-grab active:cursor-grabbing ${dragHandleClassName}`}
+        className={`flex items-center justify-between px-3 py-2 border-b bg-muted/50 rounded-t-lg cursor-grab active:cursor-grabbing select-none ${isDragging ? 'bg-primary/10' : ''
+          }`}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -154,37 +149,36 @@ export default function DraggableControls({
         style={{ touchAction: 'none' }}
       >
         <div className="flex items-center space-x-2">
-          <Bars3Icon className="w-4 h-4 text-text-tertiary" />
-          <span className="text-xs font-medium text-text-secondary">Controls</span>
+          <GripVertical className="w-4 h-4 text-muted-foreground" />
+          <span className="text-sm font-medium text-foreground">Controls</span>
         </div>
 
-        <div className="flex items-center space-x-1">
-          <button
-            onClick={handleToggleCollapse}
-            className="p-1 hover:bg-surface-tertiary rounded text-text-tertiary hover:text-text-primary transition-colors"
-            title={isCollapsed ? 'Expand controls' : 'Collapse controls'}
-          >
-            <svg
-              className={`w-3 h-3 transition-transform ${isCollapsed ? 'rotate-180' : ''}`}
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-            </svg>
-          </button>
-        </div>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={handleToggleCollapse}
+          className="h-6 w-6 p-0"
+          title={isCollapsed ? 'Expand controls' : 'Collapse controls'}
+        >
+          {isCollapsed ? (
+            <Maximize2 className="w-3 h-3" />
+          ) : (
+            <Minimize2 className="w-3 h-3" />
+          )}
+        </Button>
       </div>
 
       {/* Content area */}
       {!isCollapsed && (
-        <div className="overflow-hidden">
+        <div className="overflow-auto max-h-[60vh]">
           {children}
         </div>
       )}
 
-      {/* Resize indicator */}
-      <div className="absolute bottom-0 right-0 w-3 h-3 bg-surface-tertiary opacity-50"></div>
-    </div>
+      {/* Visual drag indicator when dragging */}
+      {isDragging && (
+        <div className="absolute inset-0 rounded-lg ring-2 ring-primary/30 pointer-events-none" />
+      )}
+    </Card>
   );
 }
