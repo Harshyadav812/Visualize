@@ -1,9 +1,9 @@
-import React, { useState, useEffect, memo } from 'react';
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import ArrayVisualizer from './visualizers/ArrayVisualizer';
 import GraphVisualizer from './visualizers/GraphVisualizer';
 import TreeVisualizer from './visualizers/TreeVisualizer';
 import HashMapVisualizer from './visualizers/HashMapVisualizer';
-import { withErrorBoundary } from './ErrorBoundary';
 
 /**
  * Smart Visualization Engine - Routes to appropriate visualizer based on data type
@@ -12,7 +12,7 @@ import { withErrorBoundary } from './ErrorBoundary';
 const SmartVisualizationEngine = ({
   visualizationData,
   currentStep = 0,
-  onStepChange,
+  onStepChange, // eslint-disable-line no-unused-vars
   className = ""
 }) => {
   const [detectedType, setDetectedType] = useState(null);
@@ -238,38 +238,15 @@ const SmartVisualizationEngine = ({
   );
 };
 
-/**
- * Enhanced visualization data structure that AI should generate
- */
-export const createTypeAwareStep = (type, data, description) => {
-  return {
-    type,
-    description,
-    timestamp: Date.now(),
-    ...data
-  };
+SmartVisualizationEngine.propTypes = {
+  visualizationData: PropTypes.shape({
+    steps: PropTypes.array
+  }),
+  currentStep: PropTypes.number,
+  onStepChange: PropTypes.func,
+  className: PropTypes.string
 };
 
-/**
- * AI prompt helper for generating type-aware visualizations
- */
-export const AI_TYPE_DETECTION_PROMPT = `
-When generating visualization data, detect the primary data structure operation and specify the type:
+SmartVisualizationEngine.displayName = 'SmartVisualizationEngine';
 
-Types to detect:
-- "array": Focus on array manipulation, indexing, sorting
-- "hashmap": Focus on key-value operations, frequency counting
-- "tree": Focus on hierarchical structures, tree traversal
-- "graph": Focus on nodes/edges, pathfinding, connectivity  
-- "hybrid": Multiple structures are equally important
-- "results": Final outcomes, statistics, summary
-
-For each step, include:
-{
-  "type": "detected_type",
-  "description": "Clear explanation of what's happening",
-  // ... rest of visualization data
-}
-`;
-
-export default withErrorBoundary(memo(SmartVisualizationEngine));
+export default SmartVisualizationEngine;
