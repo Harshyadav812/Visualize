@@ -1,7 +1,6 @@
 import React from 'react';
 import BaseVisualizer, { withErrorBoundary, VisualizerUtils } from './BaseVisualizer';
 import { formatValue, VISUALIZATION_SCHEMAS } from '../../utils/visualizationSchemas';
-import { formatValue, VISUALIZATION_SCHEMAS } from '../../utils/visualizationSchemas';
 
 /**
  * Recursion Visualizer with call stack representation
@@ -71,7 +70,6 @@ function RecursionVisualizer({ data, stepData, title = "Recursion Visualization"
         {/* Recursion Statistics */}
         <RecursionStatistics
           callStack={callStack}
-          recursiveTree={recursiveTree}
         />
       </div>
     </BaseVisualizer>
@@ -93,7 +91,6 @@ function CallStackDisplay({ callStack, currentCall, baseCase }) {
           <CallStackFrame
             key={index}
             call={call}
-            index={index}
             isCurrent={currentCall === call.function}
             isTop={index === callStack.length - 1}
             baseCase={baseCase && index === callStack.length - 1}
@@ -107,7 +104,7 @@ function CallStackDisplay({ callStack, currentCall, baseCase }) {
 /**
  * Individual call stack frame component
  */
-function CallStackFrame({ call, index, isCurrent, isTop, baseCase }) {
+function CallStackFrame({ call, isCurrent, isTop, baseCase }) {
   const {
     function: functionName,
     params = {},
@@ -204,7 +201,7 @@ function RecursiveTreeDisplay({ recursiveTree, currentCall }) {
   return (
     <div className="overflow-x-auto">
       <div className="min-w-max">
-        {recursiveTree.map((node, index) => (
+        {recursiveTree.map((node) => (
           <RecursiveTreeNode
             key={node.id}
             node={node}
@@ -250,7 +247,7 @@ function RecursiveTreeNode({ node, isCurrent, level, currentCall }) {
       {/* Render children */}
       {children.length > 0 && (
         <div className="ml-4 border-l-2 border-gray-600 pl-4">
-          {children.map((childId, index) => {
+          {children.map((childId) => {
             // Find child node in the tree
             const childNode = { id: childId, children: [], state: 'computing' };
             return (
@@ -291,7 +288,7 @@ function BaseCaseIndicator() {
 /**
  * Display recursion statistics
  */
-function RecursionStatistics({ callStack, recursiveTree }) {
+function RecursionStatistics({ callStack }) {
   const maxDepth = Math.max(...callStack.map(call => call.level || 0), 0);
   const totalCalls = callStack.length;
   const completedCalls = callStack.filter(call => call.returnValue !== undefined).length;
@@ -319,4 +316,9 @@ function RecursionStatistics({ callStack, recursiveTree }) {
   );
 }
 
-export default withErrorBoundary(RecursionVisualizer);
+RecursionVisualizer.displayName = 'RecursionVisualizer';
+
+const RecursionVisualizerWithErrorBoundary = withErrorBoundary(RecursionVisualizer);
+RecursionVisualizerWithErrorBoundary.displayName = 'RecursionVisualizerWithErrorBoundary';
+
+export default RecursionVisualizerWithErrorBoundary;

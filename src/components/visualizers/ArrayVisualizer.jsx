@@ -37,7 +37,7 @@ function ArrayVisualizer({ data, stepData, title = "Array Visualization", mode =
   }
 
   // Handle legacy data formats
-  const normalizedData = normalizeArrayData(data, mode);
+  let normalizedData = normalizeArrayData(data, mode);
 
   console.log('ArrayVisualizer normalized data:', normalizedData);
   console.log('ArrayVisualizer normalized data type:', typeof normalizedData);
@@ -143,6 +143,8 @@ function ArrayVisualizer({ data, stepData, title = "Array Visualization", mode =
     </BaseVisualizer>
   );
 };
+
+ArrayVisualizer.displayName = 'ArrayVisualizer';
 
 /**
  * Display component for a single array with highlights and pointers
@@ -612,7 +614,7 @@ function extractHashMapFromArrays(arrays) {
             // Return a placeholder for the array
             return 'Map{}';
           }
-        } catch (e) {
+        } catch {
           // Not valid JSON, keep as is
         }
       }
@@ -1005,4 +1007,7 @@ function getElementClass(state) {
 
 const ArrayVisualizerMemo = memo(ArrayVisualizer);
 
-export default withErrorBoundary(ArrayVisualizerMemo);
+const ArrayVisualizerWithErrorBoundary = withErrorBoundary(ArrayVisualizerMemo);
+ArrayVisualizerWithErrorBoundary.displayName = 'ArrayVisualizerWithErrorBoundary';
+
+export default ArrayVisualizerWithErrorBoundary;
