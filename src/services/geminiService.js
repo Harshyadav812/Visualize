@@ -449,9 +449,16 @@ function getVisualizationDataStructure(dataStructure) {
         "pointers": [{"name": "left", "position": 0, "color": "blue"}],
         "hashMap": {"a": 1, "b": 2},
         "operations": []`,
-    linkedlist: `"nodes": [{"id": 1, "value": 5, "next": 2}],
-        "pointers": [{"name": "current", "nodeId": 1, "color": "blue"}],
-        "operations": []`,
+    linkedlist: `"nodes": [
+          {"id": "list1_1", "value": 1, "next": "list1_2", "listIndex": 0},
+          {"id": "list1_2", "value": 4, "next": "list1_3", "listIndex": 0},
+          {"id": "list1_3", "value": 5, "next": null, "listIndex": 0},
+          {"id": "list2_1", "value": 1, "next": "list2_2", "listIndex": 1},
+          {"id": "list2_2", "value": 3, "next": "list2_3", "listIndex": 1}
+        ],
+        "heads": [{"listIndex": 0, "nodeId": "list1_1"}, {"listIndex": 1, "nodeId": "list2_1"}],
+        "pointers": [{"name": "current", "nodeId": "list1_1", "color": "blue"}],
+        "operations": [{"type": "compare", "nodes": ["list1_1", "list2_1"]}]`,
     tree: `"nodes": [{"id": 1, "value": 5, "left": 2, "right": 3}],
         "edges": [{"from": 1, "to": 2}],
         "traversalPath": [],
@@ -506,15 +513,23 @@ ${translationNote}
 **All Data Structures Used:** ${JSON.stringify(dataStructures)}
 
 ## CRITICAL REQUIREMENT: TEST CASE EXTRACTION
-**IMPORTANT**: You MUST extract and use the actual test case data from the problem statement for visualization.
+**IMPORTANT**: You MUST extract and use the actual test case data from the problem statement for visualization. If no explicit test case is provided, use the most common/representative example for the problem type.
 
 **Test Case Extraction Guidelines:**
-- Look for patterns like "Input: s = "value"", "Input: nums = [1,2,3]", "Example: s = "abc""
+- Look for patterns like "Input: s = "value"", "Input: nums = [1,2,3]", "Example: s = "abc"", "test case: nums = [...]"
 - Extract the ACTUAL values provided in the problem statement
 - For string problems, use the exact string provided (e.g., if problem says 'Input: s = "abcabcbb"', use "abcabcbb")
 - For array problems, use the exact array provided (e.g., if problem says 'Input: nums = [1,2,3]', use [1,2,3])
 - If multiple test cases are provided, use the first one for step-by-step visualization
-- NEVER use placeholder data like "string" or "array" - always use the actual test case values
+- If NO explicit test case is provided, create a representative example that demonstrates the problem effectively
+- NEVER use placeholder data like "string" or "array" - always use meaningful test data
+- For duplicate removal problems, ensure the test case contains actual duplicates to demonstrate the algorithm
+
+**Priority Order for Test Case Selection:**
+1. Explicit "Input:" statements in the problem
+2. "Example:" cases provided
+3. Test cases mentioned in problem description
+4. Representative cases that demonstrate the algorithm (if none provided)
 
 **String Problem Example:**
 If problem states: 'Input: s = "abcabcbb"'
@@ -523,6 +538,10 @@ Then ALL string visualizations MUST use: "abcabcbb"
 **Array Problem Example:**  
 If problem states: 'Input: nums = [2,7,11,15], target = 9'
 Then ALL array visualizations MUST use: [2,7,11,15] and target = 9
+
+**Duplicate Removal Example:**
+If problem mentions duplicate removal but no explicit test case, use: [0,0,1,1,1,2,2,3,3,4]
+This shows meaningful duplicates that the algorithm must handle.
 
 ## ANALYSIS REQUIREMENTS
 
@@ -560,7 +579,15 @@ Include comprehensive coverage of:
 - If step primarily works with strings/substrings → use "string"
 - If step focuses on tree traversal/manipulation → use "tree"
 - If step shows graph algorithms → use "graph"
-- If step demonstrates both array and hashmap equally → use "hybrid"
+- If step works with linked list nodes/pointers → use "linkedlist"
+- If step shows recursion call stack → use "recursion"
+- If step demonstrates DP table/memoization → use "dp"
+- If step demonstrates both structures equally → use "hybrid"
+
+**LINKED LIST vs ARRAY DETECTION:**
+- Use "linkedlist" when: Working with ListNode objects, pointer manipulation, node.next operations
+- Use "array" when: Working with list indices, array slicing (lists[:mid]), length operations
+- For merge k-lists: Use "array" for divide phase (splitting lists), "linkedlist" for merge phase (node operations)
 
 **DYNAMIC TYPE EXAMPLES:**
 Step 1: "visualization": { "type": "string", ... } // String initialization
@@ -581,6 +608,13 @@ Step 3: "visualization": { "type": "array", "data": { "arrays": [...], ... } }
 
 **CRITICAL DATA STRUCTURE REQUIREMENTS:**
 
+**MANDATORY: Use meaningful test case data that demonstrates the algorithm effectively**
+- For duplicate removal: Use arrays with actual duplicates like [0,0,1,1,1,2,2,3,3,4]
+- For two-pointer techniques: Use arrays that require meaningful pointer movement
+- For sliding window: Use arrays/strings that show window behavior clearly
+- For sorting algorithms: Use unsorted arrays with variety
+- NEVER use pre-sorted simple arrays like [1,2,3,4,5] unless that's specifically what the problem requires
+
 When using "type": "string", MUST include actual string content from the test case:
 "visualization": {
   "type": "string",
@@ -589,6 +623,16 @@ When using "type": "string", MUST include actual string content from the test ca
     "pointers": [{"name": "i", "position": 0}],
     "hashMap": {"key": "value"},
     "calculations": [{"expression": "i + 1", "result": 1}]
+  }
+}
+
+When using "type": "array", MUST include meaningful test case arrays:
+"visualization": {
+  "type": "array",
+  "data": {
+    "arrays": [{"name": "nums", "values": [0,0,1,1,1,2,2,3,3,4], "highlights": {...}}], // Example for duplicate removal
+    "pointers": [{"name": "slow", "position": 0}, {"name": "fast", "position": 1}],
+    "operations": ["compare", "move"]
   }
 }
 
@@ -643,7 +687,13 @@ Ensure the analysis helps students understand:
 - Use "string" when the focus is on string/character manipulation
 - Use "hashmap" when building or querying maps/frequencies
 - Use "array" when processing arrays/lists/sequences
+- Use "linkedlist" when working with ListNode objects and pointer operations
 - Use "hybrid" when multiple structures are equally important
+
+**SPECIAL CASE - MERGE K SORTED LISTS:**
+- Steps that divide/split the lists array → use "array" type
+- Steps that merge individual linked lists → use "linkedlist" type
+- For linkedlist type, ensure data has proper "nodes" structure with id, value, next, and listIndex properties
 
 ## CRITICAL DATA FORMATTING RULES
 
@@ -763,8 +813,9 @@ Generate the comprehensive JSON analysis now:`}
  * @param {string} solutionCode - The user's solution code
  * @returns {Promise<Object>} - Comprehensive educational analysis with detailed steps
  */
-export async function analyzeAlgorithm(problemStatement, solutionCode) {
+export async function analyzeAlgorithm(problemStatement, solutionCode, options = {}) {
   const startTime = Date.now();
+  const { skipTranslation = false } = options;
 
   // Check cache first
   const cacheKey = generateCacheKey(problemStatement, solutionCode);
@@ -778,24 +829,37 @@ export async function analyzeAlgorithm(problemStatement, solutionCode) {
   console.log('Starting enhanced algorithm analysis with language standardization...');
 
   try {
-    // STEP 1: Fast Language Translation (50-200ms vs 5-10 seconds)
-    console.log('Step 1: Fast AST-based translation to Python...');
-    const translationStart = Date.now();
+    let codeToAnalyze = solutionCode;
+    let originalLanguage = 'python';
+    let translationTime = 0;
+    let translationResult = {
+      method: 'no_translation_needed',
+      confidence: 1.0,
+      sourceLanguage: 'python'
+    };
 
-    // Detect source language
-    const sourceLanguage = quickDetectLanguage(solutionCode);
-    console.log(`Detected language: ${sourceLanguage}`);
+    if (!skipTranslation) {
+      // STEP 1: Fast Language Translation (50-200ms vs 5-10 seconds)
+      console.log('Step 1: Fast AST-based translation to Python...');
+      const translationStart = Date.now();
 
-    // Fast AST-based translation 
-    const translationResult = await translateToPython(solutionCode, sourceLanguage);
-    const translationTime = Date.now() - translationStart;
+      // Detect source language
+      const sourceLanguage = quickDetectLanguage(solutionCode);
+      console.log(`Detected language: ${sourceLanguage}`);
 
-    console.log(`Translation completed in ${translationTime}ms (${translationResult.method})`);
-    console.log(`Confidence: ${(translationResult.confidence * 100).toFixed(1)}%`);
+      // Fast AST-based translation 
+      translationResult = await translateToPython(solutionCode, sourceLanguage);
+      translationTime = Date.now() - translationStart;
 
-    // Use translated/standardized code for analysis
-    const codeToAnalyze = translationResult.translatedCode;
-    const originalLanguage = translationResult.sourceLanguage;
+      console.log(`Translation completed in ${translationTime}ms (${translationResult.method})`);
+      console.log(`Confidence: ${(translationResult.confidence * 100).toFixed(1)}%`);
+
+      // Use translated/standardized code for analysis
+      codeToAnalyze = translationResult.translatedCode;
+      originalLanguage = translationResult.sourceLanguage;
+    } else {
+      console.log('Step 1: Skipping translation - using original code directly');
+    }
 
     // STEP 2: Problem Type Detection (using standardized code)
     console.log('Step 2: Detecting problem patterns...');
@@ -904,25 +968,30 @@ function cleanObjectStringification(data) {
 }
 
 /**
- * Validate and fix visualization type consistency
- * @param {Object} analysisData - Parsed analysis data
+ * Validate visualization types but trust AI's intelligent choices
+ * Only fix truly invalid or missing types, don't force uniformity
+ * @param {Object} analysisData - Parsed analysis data  
  * @param {Object} detectedTypes - Detected problem types
  * @returns {Object} - Fixed analysis data
  */
 function validateAndFixVisualizationTypes(analysisData, detectedTypes) {
-  const correctType = detectedTypes.primaryDataStructure;
+  const validTypes = ['array', 'string', 'hashmap', 'tree', 'graph', 'dp', 'linkedlist',
+    'stack', 'queue', 'hybrid', 'math', 'geometry', 'bit', 'recursion'];
+
+  const fallbackType = detectedTypes.primaryDataStructure || 'array';
 
   if (analysisData.steps && Array.isArray(analysisData.steps)) {
     analysisData.steps.forEach((step, index) => {
-      if (step.visualization && step.visualization.type !== correctType) {
-        console.warn(`Step ${index + 1}: Fixed visualization type from "${step.visualization.type}" to "${correctType}"`);
-        step.visualization.type = correctType;
+      if (step.visualization) {
+        const currentType = step.visualization.type;
 
-        // If the type was wrong, we might need to fix the data structure too
-        if (!step.visualization.arrays && correctType === 'array') {
-          step.visualization.arrays = [{ name: 'arr', values: [], highlights: {} }];
-          step.visualization.pointers = step.visualization.pointers || [];
-          step.visualization.operations = step.visualization.operations || [];
+        // Only fix if the type is truly invalid or missing
+        if (!currentType || !validTypes.includes(currentType.toLowerCase())) {
+          console.warn(`Step ${index + 1}: Invalid/missing visualization type "${currentType}", defaulting to "${fallbackType}"`);
+          step.visualization.type = fallbackType;
+        } else {
+          // Trust the AI's choice - just normalize the case
+          step.visualization.type = currentType.toLowerCase();
         }
       }
     });
@@ -939,6 +1008,10 @@ function validateAndFixVisualizationTypes(analysisData, detectedTypes) {
 function parseAIResponse(text) {
   let jsonStr = text;
 
+  console.log('Raw AI response length:', text.length);
+  console.log('Raw AI response (first 500 chars):', text.substring(0, 500));
+  console.log('Raw AI response (last 500 chars):', text.substring(Math.max(0, text.length - 500)));
+
   try {
     // Remove markdown code blocks if present
     jsonStr = jsonStr.replace(/```json\s*/g, '').replace(/```\s*/g, '');
@@ -947,19 +1020,23 @@ function parseAIResponse(text) {
     const startIndex = jsonStr.indexOf('{');
     const lastIndex = jsonStr.lastIndexOf('}');
 
+    console.log('JSON boundaries:', { startIndex, lastIndex, totalLength: jsonStr.length });
+
     if (startIndex === -1 || lastIndex === -1) {
       throw new Error('No valid JSON object found in AI response');
     }
 
     jsonStr = jsonStr.substring(startIndex, lastIndex + 1);
+    console.log('Extracted JSON length:', jsonStr.length);
 
     // Try parsing the raw JSON first
     try {
       const parsedData = JSON.parse(jsonStr);
-      console.log('Direct JSON parsing successful:', parsedData);
+      console.log('Direct JSON parsing successful:', Object.keys(parsedData));
       return parsedData;
-    } catch {
-      console.log('Direct parsing failed, attempting cleanup...');
+    } catch (directError) {
+      console.log('Direct parsing failed:', directError.message);
+      console.log('Problematic JSON (first 1000 chars):', jsonStr.substring(0, 1000));
 
       // Clean up common JSON issues only if direct parsing fails
       jsonStr = jsonStr
@@ -969,15 +1046,15 @@ function parseAIResponse(text) {
         .replace(/\s+/g, ' ')    // Normalize whitespace
         .trim();
 
-      console.log('Cleaned JSON:', jsonStr); // Debug log
-
+      console.log('Attempting to parse cleaned JSON...');
       const parsedData = JSON.parse(jsonStr);
+      console.log('Cleaned JSON parsing successful:', Object.keys(parsedData));
       return parsedData;
     }
 
   } catch (parseError) {
-    console.error('JSON parsing failed:', parseError);
-    console.error('Attempted to parse:', jsonStr);
+    console.error('JSON parsing failed:', parseError.message);
+    console.error('Attempted to parse (first 500 chars):', jsonStr.substring(0, 500));
 
     // Try alternative parsing strategies
     return attemptAlternativeParsing(text);
@@ -1039,10 +1116,24 @@ function attemptAlternativeParsing(text) {
     // Extract steps - this is more complex, so we'll create a reasonable fallback
     const steps = createReasonableSteps(text);
 
+    // Detect algorithm type from content
+    let algorithmType = 'general';
+    let problemCategory = 'General Algorithm';
+    let defaultDataStructures = ['array'];
+
+    if (text.toLowerCase().includes('merge') && text.toLowerCase().includes('lists')) {
+      algorithmType = 'divide_and_conquer';
+      problemCategory = 'Merge K Sorted Lists';
+      defaultDataStructures = ['linkedlist', 'array'];
+    } else if (text.toLowerCase().includes('sliding_window')) {
+      algorithmType = 'sliding_window';
+      problemCategory = 'Subarray Sum (Longest)';
+    }
+
     const fallbackData = {
-      algorithmType: algorithmTypeMatch ? algorithmTypeMatch[1] : 'sliding_window',
-      dataStructures: dataStructuresMatch ? JSON.parse(`[${dataStructuresMatch[1]}]`) : ['array'],
-      problemCategory: problemCategoryMatch ? problemCategoryMatch[1] : 'Subarray Sum (Longest)',
+      algorithmType: algorithmTypeMatch ? algorithmTypeMatch[1] : algorithmType,
+      dataStructures: dataStructuresMatch ? JSON.parse(`[${dataStructuresMatch[1]}]`) : defaultDataStructures,
+      problemCategory: problemCategoryMatch ? problemCategoryMatch[1] : problemCategory,
       keyVariables: keyVariables,
       steps: steps,
       complexity: {
@@ -1078,8 +1169,70 @@ function attemptAlternativeParsing(text) {
  * @returns {Array} - Array of step objects
  */
 function createReasonableSteps(text) {
+  // Detect problem type from text content
+  const textLower = text.toLowerCase();
+
+  // Check for merge k lists problem
+  if (textLower.includes('merge') && (textLower.includes('lists') || textLower.includes('linked'))) {
+    return [
+      {
+        stepNumber: 1,
+        title: 'Algorithm Initialization',
+        description: 'Check for edge cases and set up the divide-and-conquer approach.',
+        codeHighlight: 'if not lists: return None',
+        variableStates: { lists: '[[1,4,5],[1,3,4],[2,6]]', n: 3 },
+        visualization: {
+          type: 'array',
+          arrays: [{
+            name: 'lists',
+            values: ['[1,4,5]', '[1,3,4]', '[2,6]'],
+            highlights: { current: [0, 1, 2] }
+          }],
+          operations: [{
+            type: 'info',
+            description: 'Input: k=3 sorted linked lists to merge'
+          }]
+        },
+        reasoning: 'Handle edge cases first, then prepare for divide-and-conquer merge.',
+        complexity: { stepTime: 'O(1)', stepSpace: 'O(1)' },
+        edgeCases: ['Empty lists array', 'Single list', 'All lists are empty'],
+        pitfalls: ['Not checking for null/empty inputs']
+      },
+      {
+        stepNumber: 2,
+        title: 'Divide Phase',
+        description: 'Split the lists array into two halves recursively.',
+        codeHighlight: 'mid = len(lists) // 2',
+        variableStates: { mid: 1, left: '[[1,4,5]]', right: '[[1,3,4],[2,6]]' },
+        visualization: {
+          type: 'array',
+          arrays: [{
+            name: 'lists',
+            values: ['[1,4,5]', '[1,3,4]', '[2,6]'],
+            highlights: {
+              left: [0],
+              right: [1, 2],
+              divider: [1]
+            }
+          }],
+          pointers: [
+            { name: 'mid', position: 1, color: 'red' }
+          ],
+          operations: [{
+            type: 'divide',
+            description: 'Split at middle: left=[1,4,5], right=[[1,3,4],[2,6]]'
+          }]
+        },
+        reasoning: 'Divide the problem into smaller subproblems for efficient merging.',
+        complexity: { stepTime: 'O(log k)', stepSpace: 'O(log k)' },
+        edgeCases: ['Odd vs even number of lists'],
+        pitfalls: ['Incorrect midpoint calculation']
+      }
+    ];
+  }
+
   // Check if this is a sliding window problem
-  if (text.includes('sliding_window') || text.includes('windowStart') || text.includes('windowEnd')) {
+  if (textLower.includes('sliding_window') || textLower.includes('windowstart') || textLower.includes('windowend')) {
     return [
       {
         stepNumber: 1,
@@ -1344,17 +1497,20 @@ function createFallbackResponse() {
  */
 function validateAndEnhanceResponse(data, detectedTypes) {
   // Validate that each step has a valid visualization type (allow dynamic types)
-  const validTypes = ['array', 'string', 'hashmap', 'tree', 'graph', 'dp', 'linkedlist', 'stack', 'queue', 'hybrid', 'math', 'geometry', 'bit'];
+  const validTypes = ['array', 'string', 'hashmap', 'tree', 'graph', 'dp', 'linkedlist', 'stack', 'queue', 'hybrid', 'math', 'geometry', 'bit', 'recursion'];
+  const fallbackType = detectedTypes.primaryDataStructure || 'array';
 
   if (data.steps && Array.isArray(data.steps)) {
     data.steps.forEach((step, index) => {
       if (step.visualization) {
-        // Validate type is recognized
-        if (!step.visualization.type || !validTypes.includes(step.visualization.type)) {
-          console.warn(`Step ${index + 1}: Invalid/missing visualization type "${step.visualization.type}", defaulting to primary type "${detectedTypes.primaryDataStructure}"`);
-          step.visualization.type = detectedTypes.primaryDataStructure;
+        // Only fix truly invalid types, trust AI's intelligent choices
+        if (!step.visualization.type || !validTypes.includes(step.visualization.type.toLowerCase())) {
+          console.warn(`Step ${index + 1}: Invalid/missing visualization type "${step.visualization.type}", defaulting to "${fallbackType}"`);
+          step.visualization.type = fallbackType;
         } else {
-          console.log(`Step ${index + 1}: Using ${step.visualization.type} visualization (dynamic type detection)`);
+          // Trust the AI's choice and normalize case
+          step.visualization.type = step.visualization.type.toLowerCase();
+          console.log(`Step ${index + 1}: Using ${step.visualization.type} visualization (AI-selected)`);
         }
 
         // Synthesize DP matrix if needed
@@ -1362,10 +1518,10 @@ function validateAndEnhanceResponse(data, detectedTypes) {
           step.visualization.matrix = synthesizeDPMockMatrix(step, index);
         }
       } else {
-        // Add missing visualization with default type
-        console.warn(`Step ${index + 1}: Adding missing visualization with type "${detectedTypes.primaryDataStructure}"`);
+        // Add missing visualization with fallback type
+        console.warn(`Step ${index + 1}: Adding missing visualization with type "${fallbackType}"`);
         step.visualization = {
-          type: detectedTypes.primaryDataStructure,
+          type: fallbackType,
           data: {}
         };
       }
