@@ -3,7 +3,7 @@ import './App.css'
 import { analyzeAlgorithm } from './services/geminiService'
 import cacheService from './services/cacheService'
 import AlgorithmVisualizer from './components/AlgorithmVisualizer'
-import { usePreloadVisualizers, getVisualizationTypes } from './components/LazyVisualizationLoader'
+import { usePreloadVisualizers, getVisualizationTypes } from './utils/visualizationUtils'
 import Header from './components/Header'
 import { ButtonSpinner, InlineLoader } from './components/LoadingIndicators'
 import { Button } from './components/ui/button'
@@ -66,7 +66,7 @@ export default function App() {
         setCacheStatus({ type: 'miss', message: 'Generating new analysis...' });
         console.log('Cache miss: Generating new analysis');
 
-        const result = await analyzeAlgorithm(problem, code);
+        const result = await analyzeAlgorithm(problem, code, { skipTranslation: true });
 
         // Store result in cache
         try {
@@ -89,7 +89,7 @@ export default function App() {
           console.log('Cache error detected, attempting direct API call...');
           setCacheStatus({ type: 'fallback', message: 'Cache error - using direct API call' });
 
-          const result = await analyzeAlgorithm(problem, code);
+          const result = await analyzeAlgorithm(problem, code, { skipTranslation: true });
           setAnalysis(result);
         } else {
           throw err; // Re-throw non-cache errors
@@ -217,7 +217,7 @@ export default function App() {
                   <span className="summary-label">Time Complexity</span>
                   <ComplexityTooltip
                     complexity={analysis.complexity?.time}
-                    description={getComplexityDescription(analysis.complexity?.time)}
+                    description={getComplexityDescription(analysis.complexity?.time, 'time')}
                     type={COMPLEXITY_TYPES.TIME}
                   >
                     <span className="summary-value complexity cursor-help hover:text-blue-400 transition-colors">
@@ -229,7 +229,7 @@ export default function App() {
                   <span className="summary-label">Space Complexity</span>
                   <ComplexityTooltip
                     complexity={analysis.complexity?.space}
-                    description={getComplexityDescription(analysis.complexity?.space)}
+                    description={getComplexityDescription(analysis.complexity?.space, 'space')}
                     type={COMPLEXITY_TYPES.SPACE}
                   >
                     <span className="summary-value complexity cursor-help hover:text-purple-400 transition-colors">
