@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { ComplexityTooltip, PatternTooltip, DataStructureTooltip, ComplexityComparisonTooltip } from './EducationalTooltip';
 
-export default function ComplexityAnalysis({ analysis, originalCode }) {
+export default function ComplexityAnalysis({ analysis, originalCode }) { // eslint-disable-line no-unused-vars
   const [activeTab, setActiveTab] = useState('complexity');
   const [showOptimizations, setShowOptimizations] = useState(false);
 
@@ -447,3 +448,13 @@ export default function ComplexityAnalysis({ analysis, originalCode }) {
     </div>
   );
 }
+
+ComplexityAnalysis.propTypes = {
+  analysis: PropTypes.shape({
+    complexity: PropTypes.object,
+    algorithmType: PropTypes.string,
+    dataStructures: PropTypes.array,
+    steps: PropTypes.array
+  }),
+  originalCode: PropTypes.string
+};
