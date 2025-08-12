@@ -9,7 +9,7 @@
 // Language detection patterns
 const LANGUAGE_PATTERNS = {
   cpp: [
-    /\#include\s*<.*>/,
+    /#include\s*<.*>/,
     /std::/,
     /cout\s*<<|cin\s*>>/,
     /vector<.*>/,
@@ -149,7 +149,7 @@ function extractAlgorithmCore(code, language) {
   switch (language) {
     case 'cpp':
       cleaned = cleaned
-        .replace(/\#include\s*<.*>\s*/g, '')           // Remove includes
+        .replace(/#include\s*<.*>\s*/g, '')           // Remove includes
         .replace(/using\s+namespace\s+std;\s*/g, '')   // Remove namespace
         .replace(/int\s+main\s*\([^}]*\}\s*$/g, '');   // Remove main function wrapper
       break;
@@ -369,7 +369,7 @@ export function quickDetectLanguage(code) {
 /**
  * Check if code contains complex patterns that might need AI translation
  */
-export function needsAITranslation(code, language) {
+export function needsAITranslation(code) {
   const complexPatterns = [
     /template\s*</,                      // C++ templates
     /generic\s*</,                       // Java generics (complex)
