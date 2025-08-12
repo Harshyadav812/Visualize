@@ -1,18 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import PropTypes from 'prop-types';
 import {
-  PlayIcon,
-  PauseIcon,
-  BackwardIcon,
-  ForwardIcon,
-  ArrowPathIcon,
-  ChevronDoubleLeftIcon,
-  ChevronDoubleRightIcon
-} from '@heroicons/react/24/solid';
-import { StatusDot, ProgressBar } from './LoadingIndicators';
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  RotateCcw,
+  ChevronsLeft,
+  ChevronsRight
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { StatusDot } from './LoadingIndicators';
+
+// Constants
+const PLAYBACK_SPEED = 1000; // 1 second per step
 
 /**
- * Enhanced visualization controls with play/pause, speed control, and step navigation
- * Implements requirements 5.1, 5.2, 5.3, 5.4
+ * Enhanced visualization controls with modern shadcn/ui styling
  */
 export default function VisualizationControls({
   currentStep,
@@ -22,7 +28,6 @@ export default function VisualizationControls({
   disabled = false
 }) {
   const [isPlaying, setIsPlaying] = useState(false);
-  const fixedSpeed = 1000; // 1x fixed
   const intervalRef = useRef(null);
 
   // Auto-play functionality
@@ -32,7 +37,7 @@ export default function VisualizationControls({
         const nextStep = Math.min(currentStep + 1, totalSteps - 1);
         onStepChange(nextStep);
         if (nextStep >= totalSteps - 1) setIsPlaying(false);
-      }, fixedSpeed);
+      }, PLAYBACK_SPEED);
     } else {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -49,171 +54,173 @@ export default function VisualizationControls({
     };
   }, [isPlaying, currentStep, totalSteps, onStepChange]);
 
-  // Handle play/pause toggle
-  const handlePlayPause = () => {
-    if (currentStep >= totalSteps - 1) {
-      // If at the end, reset to beginning and start playing
-      onStepChange(0);
-      setIsPlaying(true);
-    } else {
-      setIsPlaying(!isPlaying);
-    }
-  };
+  // Control handlers with useCallback for optimization
+  const handlePlayPause = useCallback(() => {
+    setIsPlaying(prev => !prev);
+  }, []);
 
-  // Speed & advanced UI removed (fixed at 1x)
-
-  // Handle reset
-  const handleReset = () => {
-    setIsPlaying(false);
-    onStepChange(0);
-    if (onReset) {
-      onReset();
-    }
-  };
-
-  // Handle previous step
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 0) {
       onStepChange(currentStep - 1);
     }
-  };
+  }, [currentStep, onStepChange]);
 
-  // Handle next step
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (currentStep < totalSteps - 1) {
       onStepChange(currentStep + 1);
     }
-  };
+  }, [currentStep, totalSteps, onStepChange]);
 
-  // Handle first step
-  const handleFirst = () => {
+  const handleFirst = useCallback(() => {
     onStepChange(0);
-  };
+  }, [onStepChange]);
 
-  // Handle last step
-  const handleLast = () => {
+  const handleLast = useCallback(() => {
     onStepChange(totalSteps - 1);
-  };
+  }, [totalSteps, onStepChange]);
 
-  // Show controls even for single step, but with different content
   const showFullControls = totalSteps > 1;
 
   return (
-    <div className="viz-controls bg-surface-primary border-t border-surface-tertiary px-2 py-2 md:px-4 md:py-3">
+    <div className="p-4 space-y-4">
       {showFullControls ? (
         <>
-          {/* Main Controls - Responsive Layout */}
-          <div className="flex items-center justify-center space-x-1 md:space-x-2">
+          {/* Main Controls */}
+          <div className="flex items-center justify-center space-x-2">
+            {/* First Step */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleFirst}
+              disabled={disabled || currentStep === 0}
+              title="Go to first step"
+            >
+              <ChevronsLeft className="w-4 h-4" />
+            </Button>
+
             {/* Previous Step */}
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handlePrevious}
               disabled={disabled || currentStep === 0}
-              className="p-1.5 md:p-2 text-text-tertiary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-              title="Previous step" // Legacy test expectation
+              title="Previous step"
             >
-              <BackwardIcon className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
+              <SkipBack className="w-4 h-4" />
+            </Button>
 
-            {/* Play/Pause - Responsive Size */}
-            <button
+            {/* Play/Pause */}
+            <Button
               onClick={handlePlayPause}
               disabled={disabled}
-              className="p-2 md:p-2.5 mx-1 md:mx-2 bg-accent-primary/10 hover:bg-accent-primary/20 text-accent-primary rounded-full disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-              // Legacy titles expected by tests
+              size="default"
+              className="mx-2"
               title={isPlaying ? 'Pause auto-play' : 'Start auto-play'}
             >
               {isPlaying ? (
-                <PauseIcon className="w-5 h-5 md:w-6 md:h-6" />
+                <Pause className="w-5 h-5" />
               ) : (
-                <PlayIcon className="w-5 h-5 md:w-6 md:h-6" />
+                <Play className="w-5 h-5" />
               )}
-            </button>
+            </Button>
 
             {/* Next Step */}
-            <button
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleNext}
               disabled={disabled || currentStep === totalSteps - 1}
-              className="p-1.5 md:p-2 text-text-tertiary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-              title="Next step" // Legacy test expectation
+              title="Next step"
             >
-              <ForwardIcon className="w-4 h-4 md:w-5 md:h-5" />
-            </button>
+              <SkipForward className="w-4 h-4" />
+            </Button>
 
-            {/* Divider - Hidden on mobile */}
-            <div className="hidden md:block w-px h-6 bg-surface-tertiary mx-3" />
+            {/* Last Step */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleLast}
+              disabled={disabled || currentStep === totalSteps - 1}
+              title="Go to last step"
+            >
+              <ChevronsRight className="w-4 h-4" />
+            </Button>
+          </div>
 
-            {/* Step Counter - show legacy phrasing for backward compatibility with tests */}
-            <span className="text-xs md:text-sm text-text-secondary font-mono min-w-0 px-1">
-              {/* Primary display (legacy expected by tests) */}
-              {`Step ${currentStep + 1} of ${totalSteps}`}
-              {/* Compact format retained (screen-reader hidden to avoid duplicate) */}
-              <span className="sr-only"> ({currentStep + 1}/{totalSteps})</span>
-            </span>
+          {/* Progress and Status */}
+          <div className="space-y-3">
+            {/* Step Counter and Reset */}
+            <div className="flex items-center justify-between">
+              <Badge variant="secondary" className="font-mono">
+                Step {currentStep + 1} of {totalSteps}
+              </Badge>
 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onReset}
+                disabled={disabled}
+                title="Reset to beginning"
+              >
+                <RotateCcw className="w-4 h-4 mr-1" />
+                Reset
+              </Button>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <Progress
+                value={(currentStep / Math.max(totalSteps - 1, 1)) * 100}
+                className="h-2"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Start</span>
+                <span>End</span>
+              </div>
+            </div>
+
+            {/* Status Indicator */}
+            <div className="flex items-center justify-center space-x-2">
+              <StatusDot status={isPlaying ? 'active' : 'inactive'} />
+              <span className="text-sm text-muted-foreground">
+                {isPlaying ? 'Playing' : 'Paused'}
+              </span>
+            </div>
           </div>
         </>
       ) : (
-        /* Single step or no steps - show basic info */
-        <div className="text-center py-2">
-          <div className="text-xs md:text-sm text-text-secondary">
-            {totalSteps === 0 ? 'No visualization steps available' : 'Single step visualization'}
-          </div>
+        /* Single step or no steps */
+        <div className="text-center py-4">
+          <Badge variant="outline" className="mb-2">
+            {totalSteps === 0 ? 'No steps available' : 'Single step visualization'}
+          </Badge>
           {totalSteps === 1 && (
-            <div className="text-xs text-text-tertiary mt-1">
+            <div className="text-sm text-muted-foreground">
               Step 1 of 1
             </div>
           )}
+          {totalSteps > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onReset}
+              disabled={disabled}
+              className="mt-2"
+            >
+              <RotateCcw className="w-4 h-4 mr-1" />
+              Reset
+            </Button>
+          )}
         </div>
-      )}
-
-      {showFullControls && (
-        <>
-          {/* Quick Navigation */}
-          <div className="mt-2 md:mt-3 border-t border-surface-tertiary pt-2">
-            <div className="flex items-center justify-center space-x-1">
-              <button
-                onClick={handleFirst}
-                disabled={disabled || currentStep === 0}
-                className="p-1.5 text-text-tertiary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-                title="Go to first step"
-              >
-                <ChevronDoubleLeftIcon className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={handleLast}
-                disabled={disabled || currentStep === totalSteps - 1}
-                className="p-1.5 text-text-tertiary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-                title="Go to last step"
-              >
-                <ChevronDoubleRightIcon className="w-3.5 h-3.5" />
-              </button>
-              <button
-                onClick={handleReset}
-                disabled={disabled}
-                className="p-1.5 ml-2 text-text-tertiary hover:text-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors touch-manipulation"
-                // Conditional legacy title expectations
-                title={disabled ? 'Reset' : 'Reset to beginning'}
-              >
-                <ArrowPathIcon className="w-3.5 h-3.5" />
-              </button>
-            </div>
-            <div className="mt-2">
-              <ProgressBar
-                progress={((currentStep + 1) / totalSteps) * 100}
-                size="sm"
-                variant="primary"
-                className="w-full"
-              />
-            </div>
-            {isPlaying && (
-              <div className="flex items-center justify-center mt-1">
-                <StatusDot status="active" size="sm" className="mr-2" />
-                <span className="text-[11px] text-text-tertiary">Playing 1x</span>
-              </div>
-            )}
-          </div>
-        </>
       )}
     </div>
   );
 }
+
+VisualizationControls.propTypes = {
+  currentStep: PropTypes.number.isRequired,
+  totalSteps: PropTypes.number.isRequired,
+  onStepChange: PropTypes.func.isRequired,
+  onReset: PropTypes.func.isRequired,
+  disabled: PropTypes.bool
+};
