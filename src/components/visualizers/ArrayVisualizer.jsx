@@ -9,13 +9,6 @@ import './ArrayVisualizer.css';
  * Optimized with React.memo for performance
  */
 function ArrayVisualizer({ data, stepData, title = "Array Visualization", mode = "default" }) {
-  // Debug logging
-  console.log('ArrayVisualizer received data:', data);
-  console.log('ArrayVisualizer data type:', typeof data);
-  console.log('ArrayVisualizer data keys:', data ? Object.keys(data) : 'null');
-  console.log('ArrayVisualizer data JSON:', JSON.stringify(data, null, 2));
-  console.log('ArrayVisualizer mode:', mode);
-
   // Handle completely undefined/null data early
   if (!data) {
     console.warn('ArrayVisualizer: No data provided, using default empty array');
@@ -38,10 +31,6 @@ function ArrayVisualizer({ data, stepData, title = "Array Visualization", mode =
 
   // Handle legacy data formats
   let normalizedData = normalizeArrayData(data, mode);
-
-  console.log('ArrayVisualizer normalized data:', normalizedData);
-  console.log('ArrayVisualizer normalized data type:', typeof normalizedData);
-  console.log('ArrayVisualizer normalized data arrays:', normalizedData?.arrays);
 
   // Validate required data - with graceful error handling
   try {
@@ -152,10 +141,6 @@ ArrayVisualizer.displayName = 'ArrayVisualizer';
  */
 const ArrayDisplay = memo(function ArrayDisplay({ arrayData, pointers = [], operations = [] }) {
   const { name, values, highlights = {} } = arrayData;
-
-  console.log('ArrayDisplay received arrayData:', arrayData);
-  console.log('ArrayDisplay values:', values);
-  console.log('ArrayDisplay values length:', values ? values.length : 'undefined');
 
   return (
     <div className="space-y-4">
@@ -634,9 +619,6 @@ function extractHashMapFromArrays(arrays) {
  * Normalize different array data formats to a consistent structure
  */
 function normalizeArrayData(data, mode) {
-  console.log('normalizeArrayData - input data:', data);
-  console.log('normalizeArrayData - mode:', mode);
-
   // Create a safe fallback structure
   const createFallback = (reason = 'no data provided') => {
     console.warn(`normalizeArrayData - ${reason}, using fallback`);
@@ -696,7 +678,6 @@ function normalizeArrayData(data, mode) {
 
     // Handle structured format with arrays property (most common from AI)
     if (data.arrays && Array.isArray(data.arrays)) {
-      console.log('normalizeArrayData - using arrays property');
       const { cleanedArrays, extractedHashMap } = extractHashMapFromArrays(data.arrays);
       return {
         arrays: cleanedArrays,
@@ -711,7 +692,6 @@ function normalizeArrayData(data, mode) {
 
     // Handle case where data has type property and arrays at same level
     if (data.type === 'array' && data.arrays) {
-      console.log('normalizeArrayData - using type=array with arrays at same level');
       return {
         arrays: data.arrays,
         pointers: data.pointers || [],
