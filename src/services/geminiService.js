@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { translateToPython, quickDetectLanguage } from './astTranslationService.js';
+import { convertLegacyToUIR } from './uirService.js';
 
 // Initialize Gemini AI
 const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
@@ -917,6 +918,42 @@ export async function analyzeAlgorithm(problemStatement, solutionCode, options =
       aiAnalysis: Date.now() - startTime - translationTime,
       total: Date.now() - startTime
     });
+
+    // Generate UIR format for enhanced visualization
+    console.log('Converting to UIR format...');
+    const uirStartTime = Date.now();
+    try {
+      const uirData = convertLegacyToUIR(validatedData);
+      const uirTime = Date.now() - uirStartTime;
+      console.log('UIR conversion completed in', uirTime, 'ms');
+
+      // Add UIR data to the response
+      validatedData.uirSteps = uirData.uirSteps;
+      validatedData.metadata = {
+        ...validatedData.metadata,
+        uirGeneration: {
+          success: true,
+          conversionTime: uirTime,
+          entityTypes: uirData.uirSteps ?
+            [...new Set(uirData.uirSteps.flatMap(step =>
+              step.entities?.map(e => e.type) || []
+            ))].sort() : [],
+          stepCount: uirData.uirSteps?.length || 0
+        }
+      };
+
+      console.log('UIR metadata:', validatedData.metadata.uirGeneration);
+    } catch (uirError) {
+      console.warn('UIR conversion failed, proceeding with legacy format:', uirError);
+      validatedData.metadata = {
+        ...validatedData.metadata,
+        uirGeneration: {
+          success: false,
+          error: uirError.message,
+          fallbackMode: 'legacy'
+        }
+      };
+    }
 
     return validatedData;
 
