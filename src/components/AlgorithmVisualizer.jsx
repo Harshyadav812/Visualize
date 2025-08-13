@@ -1,5 +1,5 @@
 import React, { useState, memo, useMemo, useCallback } from 'react';
-import VisualizationEngine from './VisualizationEngine';
+import EnhancedVisualizationEngine from './EnhancedVisualizationEngine';
 import VisualizationControls from './VisualizationControls';
 import DraggableControls from './DraggableControls';
 import { ProgressBar } from './LoadingIndicators';
@@ -127,7 +127,16 @@ const AlgorithmVisualizer = memo(function AlgorithmVisualizer({ analysis, origin
         <div className="flex-1 relative">
           {currentStepData?.visualization ? (
             <div className="h-full p-4">
-              <VisualizationEngine analysis={analysis} currentStep={currentStep} onStepChange={handleStepChange} />
+              <EnhancedVisualizationEngine
+                analysis={analysis}
+                currentStep={currentStep}
+                onStepChange={handleStepChange}
+                preferUIR={true}
+                showDebugInfo={true}
+                onVisualizationError={(error, context) => {
+                  console.error('Visualization error in AlgorithmVisualizer:', error, context);
+                }}
+              />
             </div>
           ) : (
             <div className="h-full flex items-center justify-center text-text-muted">No visualization available for this step</div>
